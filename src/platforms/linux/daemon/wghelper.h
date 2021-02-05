@@ -14,16 +14,19 @@ class WireguardHelper final {
   // utils
   static bool interfaceExists();
   static QStringList currentDevices();
-  static bool setPeerEndpoint(struct sockaddr* peerEndpoint,
-                              const QString& address, int port);
-  static bool setAllowedIpsOnPeer(struct wg_peer* peer,
-                                  QList<IPAddressRange> allowedIPAddressRanges);
-  static wg_peer* buildPeer(const Daemon::Config& conf);
   // up
   static bool addIf();
   static bool setConf(const Daemon::Config& config);
   // down
   static bool delDev();
+
+ private:
+  static bool setPeerEndpoint(struct sockaddr* peerEndpoint,
+                              const QString& address, int port);
+  static bool setAllowedIpsOnPeer(struct wg_peer* peer,
+                                  QList<IPAddressRange> allowedIPAddressRanges);
+  static wg_peer* buildPeerForDevice(struct wg_device* device,
+                                     const Daemon::Config& conf);
 };
 
 #endif  // WIREGUARDHELPER_H
