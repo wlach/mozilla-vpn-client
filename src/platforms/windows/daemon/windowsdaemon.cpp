@@ -416,6 +416,16 @@ bool WindowsDaemon::run(Daemon::Op op, const Config& config) {
     addresses.append(ip.toString());
   }
 
+  if (!WgQuickProcess::validateWgArgs(
+          config.m_privateKey, config.m_deviceIpv4Address,
+          config.m_deviceIpv6Address, config.m_serverIpv4Gateway,
+          config.m_serverIpv6Gateway, config.m_serverPublicKey,
+          config.m_serverIpv4AddrIn, config.m_serverIpv6AddrIn,
+          addresses.join(", "), config.m_serverPort, config.m_ipv6Enabled)) {
+    logger.log() << "Failed to validate the server parameters";
+    return false;
+  }
+
   if (!WgQuickProcess::createConfigFile(
           tunnelFile, config.m_privateKey, config.m_deviceIpv4Address,
           config.m_deviceIpv6Address, config.m_serverIpv4Gateway,

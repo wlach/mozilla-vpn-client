@@ -22,10 +22,13 @@ Logger logger(
     "WgQuickProcess");
 
 QString scriptPath() {
-#if defined(MVPN_LINUX)
-  return "wg-quick";
-#elif defined(MVPN_MACOS_DAEMON)
   QDir appPath(QCoreApplication::applicationDirPath());
+#if defined(MVPN_LINUX)
+  appPath.cdUp();
+  appPath.cd("share");
+  appPath.cd("mozillavpn");
+  return appPath.filePath("wghelper.sh");
+#elif defined(MVPN_MACOS_DAEMON)
   appPath.cdUp();
   appPath.cd("Resources");
   appPath.cd("utils");
@@ -37,18 +40,18 @@ QString scriptPath() {
 }  // namespace
 
 // static
-bool WgQuickProcess::createConfigFile(
-    const QString& configFile, const QString& privateKey,
-    const QString& deviceIpv4Address, const QString& deviceIpv6Address,
-    const QString& serverIpv4Gateway, const QString& serverIpv6Gateway,
-    const QString& serverPublicKey, const QString& serverIpv4AddrIn,
-    const QString& serverIpv6AddrIn, const QString& allowedIPAddressRanges,
-    int serverPort, bool ipv6Enabled) {
-  Q_UNUSED(serverIpv6AddrIn);
+bool WgQuickProcess::validateWgArgs(
+    const QString& privateKey, const QString& deviceIpv4Address,
+    const QString& deviceIpv6Address, const QString& serverIpv4Gateway,
+    const QString& serverIpv6Gateway, const QString& serverPublicKey,
+    const QString& serverIpv4AddrIn, const QString& serverIpv6AddrIn,
+    const QString& allowedIPAddressRanges, int serverPort, bool ipv6Enabled) {
+  // We may want to do more advanced validation in the future
+  Q_UNUSED(serverPort);
+  Q_UNUSED(ipv6Enabled);
 
 #define VALIDATE(x) \
   if (x.contains("\n")) return false;
-
   VALIDATE(privateKey);
   VALIDATE(deviceIpv4Address);
   VALIDATE(deviceIpv6Address);
@@ -59,6 +62,23 @@ bool WgQuickProcess::createConfigFile(
   VALIDATE(serverIpv6AddrIn);
   VALIDATE(allowedIPAddressRanges);
 #undef VALIDATE
+
+  return true;
+}
+
+bool WgQuickProcess::createConfigFile(
+    const QString& configFile, const QString& privateKey,
+    const QString& deviceIpv4Address, const QString& deviceIpv6Address,
+    const QString& serverIpv4Gateway, const QString& serverIpv6Gateway,
+    const QString& serverPublicKey, const QString& serverIpv4AddrIn,
+    const QString& serverIpv6AddrIn, const QString& allowedIPAddressRanges,
+    int serverPort, bool ipv6Enabled) {
+  Q_UNUSED(serverIpv6AddrIn);
+
+  Q_ASSERT(validateWgArgs(privateKey, deviceIpv4Address, deviceIpv6Address,
+                          serverIpv4Gateway, serverIpv6Gateway, serverPublicKey,
+                          serverIpv4AddrIn, serverIpv6AddrIn,
+                          allowedIPAddressRanges, serverPort, ipv6Enabled));
 
   QByteArray content;
   content.append("[Interface]\nPrivateKey = ");
@@ -126,6 +146,14 @@ bool WgQuickProcess::run(
     return false;
   }
 
+  if (!validateWgArgs(privateKey, deviceIpv4Address, deviceIpv6Address,
+                      serverIpv4Gateway, serverIpv6Gateway, serverPublicKey,
+                      serverIpv4AddrIn, serverIpv6AddrIn,
+                      allowedIPAddressRanges, serverPort, ipv6Enabled)) {
+    qWarning("Config arguments are not valid.");
+    return false;
+  }
+
   QDir dir(tmpDir.path());
   QString configFile(dir.filePath(QString("%1.conf").arg(WG_INTERFACE)));
 
@@ -137,6 +165,7 @@ bool WgQuickProcess::run(
     return false;
   }
 
+  // Run
   QStringList arguments;
   arguments.append(op == Daemon::Up ? "up" : "down");
   arguments.append(configFile);
