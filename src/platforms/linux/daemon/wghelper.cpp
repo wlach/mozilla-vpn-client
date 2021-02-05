@@ -171,6 +171,8 @@ wg_peer* WireguardHelper::buildPeerForDevice(wg_device* device,
                                              const Daemon::Config& config) {
   // PEER
   wg_peer* peer = static_cast<wg_peer*>(calloc(1, sizeof(*peer)));
+  // TODO - If you deliberately set this to `if(peer)` to make this fail
+  // then activation cycle does not behave well.
   if (!peer) {
     logger.log() << "Allocation failure";
     return nullptr;
