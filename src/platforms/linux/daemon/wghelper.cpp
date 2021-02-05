@@ -167,6 +167,28 @@ bool WireguardHelper::setAllowedIpsOnPeer(
   return true;
 }
 
+wg_peer* WireguardHelper::buildPeer(const Daemon::Config& config) {
+  // PEER
+  wg_peer* peer = static_cast<wg_peer*>(calloc(1, sizeof(*peer)));
+
+  if (!peer) {
+    logger.log() << "Allocation failure";
+    return nullptr;
+  }
+  // Public Key
+  wg_key_from_base64(peer->public_key, config.m_serverPublicKey.toLocal8Bit());
+  // Endpoint
+  if (!setPeerEndpoint(&peer->endpoint.addr, config.m_serverIpv4AddrIn,
+                       config.m_serverPort)) {
+    return nullptr;
+  }
+  if (!setAllowedIpsOnPeer(peer, config.m_allowedIPAddressRanges)) {
+    logger.log() << "Failed to set allowed IPs on Peer";
+    return nullptr;
+  }
+  return peer;
+}
+
 // static
 bool WireguardHelper::setConf(const Daemon::Config& config) {
   /*
@@ -175,9 +197,6 @@ bool WireguardHelper::setConf(const Daemon::Config& config) {
    * - sets public key on device
    * - sets private key on peer
    * - sets allowed ips on device
-   *
-   *
-   *
    *
    */
 
@@ -188,33 +207,22 @@ bool WireguardHelper::setConf(const Daemon::Config& config) {
     return false;
   }
   auto guard = qScopeGuard([&] { wg_free_device(device); });
+
   // Name
   strncpy(device->name, WG_INTERFACE, IFNAMSIZ - 1);
   device->name[IFNAMSIZ - 1] = '\0';
   // Private Key
   wg_key_from_base64(device->private_key, config.m_privateKey.toLocal8Bit());
   device->flags = WGDEVICE_REPLACE_PEERS;
-
-  // PEER
-  wg_peer* peer = static_cast<wg_peer*>(calloc(1, sizeof(*peer)));
+  // Peer
+  wg_peer* peer = buildPeer(config);
   if (!peer) {
-    logger.log() << "Allocation failure";
+    logger.log() << "Failed to create peer.";
     return false;
   }
-  // Public Key
-  wg_key_from_base64(peer->public_key, config.m_serverPublicKey.toLocal8Bit());
-  // Endpoint
-  if (!setPeerEndpoint(&peer->endpoint.addr, config.m_serverIpv4AddrIn,
-                       config.m_serverPort)) {
-    return false;
-  }
-  if (!setAllowedIpsOnPeer(peer, config.m_allowedIPAddressRanges)) {
-    logger.log() << "Failed to set allowed IPs on Peer";
-    return false;
-  }
-
-  // CONFIGURE DEVICE
   device->first_peer = device->last_peer = peer;
+
+  // Configure device
   if (wg_set_device(device) != 0) {
     logger.log() << "Failed to set the new peer";
     return false;

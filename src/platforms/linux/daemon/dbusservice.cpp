@@ -175,53 +175,11 @@ bool DBusService::run(Op op, const Config& config) {
 
 bool DBusService::switchServer(const Config& config) {
   logger.log() << "Switching server";
-
-  wg_device* device = static_cast<wg_device*>(calloc(1, sizeof(*device)));
-  if (!device) {
-    logger.log() << "Allocation failure";
-    return false;
-  }
-
-  auto guard = qScopeGuard([&] { wg_free_device(device); });
-
-  strncpy(device->name, WG_INTERFACE, IFNAMSIZ - 1);
-  device->name[IFNAMSIZ - 1] = '\0';
-
-  wg_peer* peer = static_cast<wg_peer*>(calloc(1, sizeof(*peer)));
-  if (!peer) {
-    logger.log() << "Allocation failure";
-    return false;
-  }
-
-  peer->flags =
-      (wg_peer_flags)(WGPEER_HAS_PUBLIC_KEY | WGPEER_REPLACE_ALLOWEDIPS);
-
-  device->first_peer = device->last_peer = peer;
-  device->flags = WGDEVICE_REPLACE_PEERS;
-  wg_key_from_base64(peer->public_key, config.m_serverPublicKey.toLocal8Bit());
-
-  if (!WireguardHelper::setPeerEndpoint(&peer->endpoint.addr,
-                                        config.m_serverIpv4AddrIn,
-                                        config.m_serverPort)) {
-    return false;
-  }
-  if (!WireguardHelper::setAllowedIpsOnPeer(peer,
-                                            config.m_allowedIPAddressRanges)) {
-    logger.log() << "Failed to set allowed IPs on Peer";
-    return false;
-  }
-
-  if (wg_set_device(device) != 0) {
-    logger.log() << "Failed to set the new peer";
-    return false;
-  }
-
-  return true;
+  return WireguardHelper::setConf(config);
 }
 
 bool DBusService::supportServerSwitching(const Config& config) const {
-  return m_lastConfig.m_privateKey == config.m_privateKey &&
-         m_lastConfig.m_deviceIpv4Address == config.m_deviceIpv4Address &&
+  return m_lastConfig.m_deviceIpv4Address == config.m_deviceIpv4Address &&
          m_lastConfig.m_deviceIpv6Address == config.m_deviceIpv6Address &&
          m_lastConfig.m_serverIpv4Gateway == config.m_serverIpv4Gateway &&
          m_lastConfig.m_serverIpv6Gateway == config.m_serverIpv6Gateway;

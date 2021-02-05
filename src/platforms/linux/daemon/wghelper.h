@@ -18,6 +18,7 @@ class WireguardHelper final {
                               const QString& address, int port);
   static bool setAllowedIpsOnPeer(struct wg_peer* peer,
                                   QList<IPAddressRange> allowedIPAddressRanges);
+  static wg_peer* buildPeer(const Daemon::Config& conf);
   // up
   static bool addIf();
   static bool setConf(const Daemon::Config& config);
