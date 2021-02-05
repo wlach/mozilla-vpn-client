@@ -173,7 +173,6 @@ bool DBusService::run(Op op, const Config& config) {
       addresses.join(", "), config.m_serverPort, config.m_ipv6Enabled);
 }
 
-
 bool DBusService::switchServer(const Config& config) {
   logger.log() << "Switching server";
 
