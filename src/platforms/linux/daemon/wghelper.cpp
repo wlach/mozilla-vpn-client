@@ -26,37 +26,35 @@ namespace {
 Logger logger(LOG_LINUX, "WireguardHelper");
 }
 
-bool WireguardHelper::interface_exists() {
-  // Also confirms it is wireguard
-  QStringList wg_devices = WireguardHelper::current_wireguard_devices();
-  return wg_devices.contains(WG_INTERFACE);
+// static
+bool WireguardHelper::interfaceExists() {
+  // Also confirms it is wireguard.
+  return WireguardHelper::currentDevices().contains(WG_INTERFACE);
 };
 
-QStringList WireguardHelper::current_wireguard_devices() {
-  // wg_list_device_names returns first\0second\0third\0forth\0last\0\0
-  char* wg_devices_raw = wg_list_device_names();
-  int len = 0;
-  QByteArray device = {};
-  QStringList wg_devices;
-  // I'm all ears on a more graceful way to handle this
-  while (!(wg_devices_raw[len] == '\0' && wg_devices_raw[len - 1] == '\0')) {
-    if (wg_devices_raw[len] == '\0') {
-      wg_devices.append(device);
-      device = {};
-    } else {
-      device.append(wg_devices_raw[len]);
-    }
-    ++len;
+// static
+QStringList WireguardHelper::currentDevices() {
+  char *deviceNames, *deviceName;
+  size_t len;
+  QStringList devices;
+  deviceNames = wg_list_device_names();
+  wg_for_each_device_name(deviceNames, deviceName, len) {
+    devices.append(deviceName);
   }
-  return wg_devices;
+  free(deviceNames);
+  return devices;
 }
 
-bool WireguardHelper::add_if() {
-  int return_code = wg_add_device(WG_INTERFACE);
-  if (return_code != 0) {
+// static
+bool WireguardHelper::addIf() {
+  int returnCode = wg_add_device(WG_INTERFACE);
+  if (returnCode != 0) {
     qWarning("Adding interface `%s` failed with return code: %d", WG_INTERFACE,
-             return_code);
+             returnCode);
     return false;
   }
   return true;
 }
+
+// static
+bool WireguardHelper::setConf() { return false; }

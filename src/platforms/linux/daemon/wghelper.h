@@ -5,14 +5,18 @@
 #ifndef WIREGUARDHELPER_H
 #define WIREGUARDHELPER_H
 
-#include <QStringList>
+class QStringList;
 
 class WireguardHelper final {
  public:
-  static bool interface_exists();
-  static QStringList current_wireguard_devices();
-  static bool add_if();
-  static bool del_dev();
+  // utils
+  static bool interfaceExists();
+  static QStringList currentDevices();
+  // up
+  static bool addIf();
+  static bool setConf();
+  // down
+  static bool delDev();
 };
 
 #endif  // WIREGUARDHELPER_H
