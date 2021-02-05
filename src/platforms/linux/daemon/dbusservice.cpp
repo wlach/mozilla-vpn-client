@@ -147,8 +147,10 @@ bool DBusService::run(Op op, const Config& config) {
     if (!WireguardHelper::addIf()) {
       return false;
     }
-
     // set conf
+    if (!WireguardHelper::setConf(config)) {
+      return false;
+    }
   }
 
   // WG Down commands

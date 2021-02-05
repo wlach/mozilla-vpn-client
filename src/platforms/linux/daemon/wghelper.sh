@@ -13,7 +13,6 @@ export LC_ALL=C
 SELF="$(readlink -f "${BASH_SOURCE[0]}")"
 export PATH="${SELF%/*}:$PATH"
 
-WG_CONFIG=""
 INTERFACE=""
 ADDRESSES=( )
 DNS=( )
@@ -48,7 +47,6 @@ parse_options() {
 			done; continue ;;
 			esac
 		fi
-		WG_CONFIG+="$line"$'\n'
 	done < "$CONFIG_FILE"
 	shopt -u nocasematch
 }
@@ -159,14 +157,9 @@ add_default() {
 	return 0
 }
 
-set_config() {
-	wg setconf "$INTERFACE" <(echo "$WG_CONFIG")
-}
-
 cmd_up() {
 	local i
 	trap 'del_if; exit' INT TERM EXIT
-	set_config
 	for i in "${ADDRESSES[@]}"; do
 		add_addr "$i"
 	done
