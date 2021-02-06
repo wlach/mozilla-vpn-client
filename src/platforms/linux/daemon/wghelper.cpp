@@ -193,12 +193,7 @@ wg_peer* WireguardHelper::buildPeerForDevice(wg_device* device,
   return peer;
 }
 
-static void inline cleanup(wg_device* device) {
-  logger.log() << "Something went wrong. Cleaning up.";
-  wg_free_device(device);
-}
 
-// static
 bool WireguardHelper::setConf(const Daemon::Config& config) {
   /*
    * Set conf:
@@ -217,7 +212,7 @@ bool WireguardHelper::setConf(const Daemon::Config& config) {
     logger.log() << "Allocation failure";
     return false;
   }
-  auto guard = qScopeGuard([&] { cleanup(device); });
+  auto guard = qScopeGuard([&] { wg_free_device(device); });
 
   // Name
   strncpy(device->name, WG_INTERFACE, IFNAMSIZ - 1);
