@@ -224,13 +224,16 @@ bool WireguardHelper::setConf(const Daemon::Config& config) {
   device->name[IFNAMSIZ - 1] = '\0';
   // Private Key
   wg_key_from_base64(device->private_key, config.m_privateKey.toLocal8Bit());
-  device->flags = WGDEVICE_REPLACE_PEERS;
   // Peer
   wg_peer* peer = buildPeerForDevice(device, config);
   if (!peer) {
     logger.log() << "Failed to create peer.";
     return false;
   }
+
+  device->flags =
+      (wg_device_flags)(WGPEER_HAS_PUBLIC_KEY | WGDEVICE_HAS_PRIVATE_KEY |
+                        WGDEVICE_REPLACE_PEERS);
 
   // Set/update device
   if (wg_set_device(device) != 0) {
