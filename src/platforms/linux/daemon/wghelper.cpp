@@ -238,3 +238,14 @@ bool WireguardHelper::setConf(const Daemon::Config& config) {
 
   return true;
 }
+
+// static
+bool WireguardHelper::delIf() {
+  int returnCode = wg_del_device(WG_INTERFACE);
+  if (returnCode != 0) {
+    qWarning("Deleting interface `%s` failed with return code: %d",
+             WG_INTERFACE, returnCode);
+    return false;
+  }
+  return true;
+}

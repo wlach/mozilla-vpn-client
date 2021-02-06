@@ -167,12 +167,20 @@ bool DBusService::run(Op op, const Config& config) {
     addresses.append(ip.toString());
   }
 
-  return WgQuickProcess::run(
+  bool run_status = WgQuickProcess::run(
       op, config.m_privateKey, config.m_deviceIpv4Address,
       config.m_deviceIpv6Address, config.m_serverIpv4Gateway,
       config.m_serverIpv6Gateway, config.m_serverPublicKey,
       config.m_serverIpv4AddrIn, config.m_serverIpv6AddrIn,
       addresses.join(", "), config.m_serverPort, config.m_ipv6Enabled);
+
+  if (op == Down && run_status == true) {
+    if (!WireguardHelper::delIf()) {
+      return false;
+    }
+  }
+
+  return run_status;
 }
 
 bool DBusService::switchServer(const Config& config) {

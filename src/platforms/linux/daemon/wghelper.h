@@ -18,7 +18,7 @@ class WireguardHelper final {
   static bool addIf();
   static bool setConf(const Daemon::Config& config);
   // down
-  static bool delDev();
+  static bool delIf();
 
  private:
   static bool setPeerEndpoint(struct sockaddr* peerEndpoint,
