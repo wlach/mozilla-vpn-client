@@ -12,19 +12,22 @@ class QStringList;
 class WireguardHelper final {
  public:
   // utils
-  static bool interfaceExists();
+  static bool deviceExists();
   static QStringList currentDevices();
   // up
-  static bool addIf();
+  static bool addDevice();
   static bool configureDevice(const Daemon::Config& config);
+  static bool addDeviceIps(const Daemon::Config& config);
   // down
-  static bool delIf();
+  static bool delDevice();
 
  private:
   static bool setPeerEndpoint(struct sockaddr* peerEndpoint,
                               const QString& address, int port);
   static bool setAllowedIpsOnPeer(struct wg_peer* peer,
                                   QList<IPAddressRange> allowedIPAddressRanges);
+  static bool addIP4AddressToDevice(const Daemon::Config& conf);
+  static bool addIP6AddressToDevice(const Daemon::Config& conf);
   static wg_peer* buildPeerForDevice(struct wg_device* device,
                                      const Daemon::Config& conf);
 };

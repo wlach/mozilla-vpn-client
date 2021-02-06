@@ -9,9 +9,11 @@
 #include <QString>
 #include <QByteArray>
 #include <QStringList>
+#include <QHostAddress>
 
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -33,10 +35,18 @@ namespace {
 Logger logger(LOG_LINUX, "WireguardHelper");
 }
 
+// HELPERS
+
+char* iface_name() { return QString(WG_INTERFACE).toLocal8Bit().data(); }
+
+char* addrToText(struct sockaddr_in* addr) { return inet_ntoa(addr->sin_addr); }
+
+// END HELPERS
+
 // static
-bool WireguardHelper::interfaceExists() {
+bool WireguardHelper::deviceExists() {
   // Also confirms it is wireguard.
-  return WireguardHelper::currentDevices().contains(WG_INTERFACE);
+  return WireguardHelper::currentDevices().contains(iface_name());
 };
 
 // static
@@ -53,10 +63,10 @@ QStringList WireguardHelper::currentDevices() {
 }
 
 // static
-bool WireguardHelper::addIf() {
-  int returnCode = wg_add_device(WG_INTERFACE);
+bool WireguardHelper::addDevice() {
+  int returnCode = wg_add_device(iface_name());
   if (returnCode != 0) {
-    qWarning("Adding interface `%s` failed with return code: %d", WG_INTERFACE,
+    qWarning("Adding interface `%s` failed with return code: %d", iface_name(),
              returnCode);
     return false;
   }
@@ -167,6 +177,90 @@ bool WireguardHelper::setAllowedIpsOnPeer(
   return true;
 }
 
+//
+
+// static
+bool WireguardHelper::addIP4AddressToDevice(const Daemon::Config& config) {
+  struct ifreq ifr;
+  struct sockaddr_in* ifrAddr = (struct sockaddr_in*)&ifr.ifr_addr;
+
+  // Name the interface and set family
+  strncpy(ifr.ifr_name, iface_name(), IFNAMSIZ);
+  ifr.ifr_addr.sa_family =
+      AF_INET;  // TODO c++ question - why can't I use ifrAddr here?
+
+  // Get the device address to add to interface
+  QPair<QHostAddress, int> parsedAddr =
+      QHostAddress::parseSubnet(config.m_deviceIpv4Address);
+  QByteArray _deviceAddr = parsedAddr.first.toString().toLocal8Bit();
+  char* deviceAddr = _deviceAddr.data();
+  inet_pton(AF_INET, deviceAddr, &ifrAddr->sin_addr);
+  logger.log() << addrToText(ifrAddr);
+
+  // Create IPv4 socket to perform the ioctl operations on
+  int sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
+  int ret = ioctl(sockfd, SIOCSIFADDR, &ifr);
+  if (ret) {
+    logger.log() << "Failed to set IPv4: " << deviceAddr
+                 << " -- Return code: " << ret;
+    return false;
+  }
+
+  /*
+   * TODO - Open question. We are not setting the netmask based on the /32
+   * do we want to? Could there be other cidr values?
+   */
+
+  close(sockfd);
+  // TODO c++ question - do I need to free any other objects?
+  return true;
+}
+
+struct in6_ifreq {
+  struct in6_addr addr;
+  uint32_t prefixlen;
+  unsigned int ifindex;
+};
+
+// static
+bool WireguardHelper::addIP6AddressToDevice(const Daemon::Config& config) {
+  // Set up the ifr and the companion ifr6
+  struct in6_ifreq ifr6;
+  ifr6.prefixlen = 64;
+
+  // Get the device address to add to ifr6 interface
+  QPair<QHostAddress, int> parsedAddr =
+      QHostAddress::parseSubnet(config.m_deviceIpv6Address);
+  QByteArray _deviceAddr = parsedAddr.first.toString().toLocal8Bit();
+  char* deviceAddr = _deviceAddr.data();
+  inet_pton(AF_INET6, deviceAddr, &ifr6.addr);
+
+  // Create IPv6 socket to perform the ioctl operations on
+  int sockfd = socket(AF_INET6, SOCK_DGRAM, IPPROTO_IP);
+
+  // Get the index of named ifr and link with ifr6
+  struct ifreq ifr;
+  strncpy(ifr.ifr_name, iface_name(), IFNAMSIZ);
+  ifr.ifr_addr.sa_family = AF_INET6;
+  int ret = ioctl(sockfd, SIOGIFINDEX, &ifr);
+  if (ret) {
+    logger.log() << "Failed to get ifrindex. Return code: " << ret;
+    return false;
+  }
+  ifr6.ifindex = ifr.ifr_ifindex;
+
+  // Set ifr6 to the interface
+  ret = ioctl(sockfd, SIOCSIFADDR, &ifr6);
+  if (ret) {
+    logger.log() << "Failed to set IPv6: " << deviceAddr
+                 << " -- Return code: " << ret;
+    return false;
+  }
+
+  close(sockfd);
+  return true;
+}
+
 wg_peer* WireguardHelper::buildPeerForDevice(wg_device* device,
                                              const Daemon::Config& config) {
   // PEER
@@ -193,7 +287,6 @@ wg_peer* WireguardHelper::buildPeerForDevice(wg_device* device,
   return peer;
 }
 
-
 bool WireguardHelper::configureDevice(const Daemon::Config& config) {
   /*
    * Set conf:
@@ -215,8 +308,7 @@ bool WireguardHelper::configureDevice(const Daemon::Config& config) {
   auto guard = qScopeGuard([&] { wg_free_device(device); });
 
   // Name
-  strncpy(device->name, WG_INTERFACE, IFNAMSIZ - 1);
-  device->name[IFNAMSIZ - 1] = '\0';
+  strncpy(device->name, iface_name(), IFNAMSIZ);
   // Private Key
   wg_key_from_base64(device->private_key, config.m_privateKey.toLocal8Bit());
   // Peer
@@ -225,26 +317,34 @@ bool WireguardHelper::configureDevice(const Daemon::Config& config) {
     logger.log() << "Failed to create peer.";
     return false;
   }
-
+  // Set/update device
   device->flags =
       (wg_device_flags)(WGPEER_HAS_PUBLIC_KEY | WGDEVICE_HAS_PRIVATE_KEY |
                         WGDEVICE_REPLACE_PEERS);
-
-  // Set/update device
   if (wg_set_device(device) != 0) {
     logger.log() << "Failed to set the new peer";
     return false;
   }
-
+  return true;
+}
+bool WireguardHelper::addDeviceIps(const Daemon::Config& config) {
+  if (!addIP4AddressToDevice(config)) {
+    return false;
+  }
+  if (config.m_ipv6Enabled) {
+    if (!addIP6AddressToDevice(config)) {
+      return false;
+    }
+  }
   return true;
 }
 
 // static
-bool WireguardHelper::delIf() {
-  int returnCode = wg_del_device(WG_INTERFACE);
+bool WireguardHelper::delDevice() {
+  int returnCode = wg_del_device(iface_name());
   if (returnCode != 0) {
     qWarning("Deleting interface `%s` failed with return code: %d",
-             WG_INTERFACE, returnCode);
+             iface_name(), returnCode);
     return false;
   }
   return true;

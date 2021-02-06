@@ -40,48 +40,25 @@ QString scriptPath() {
 }  // namespace
 
 // static
-bool WgQuickProcess::validateWgArgs(
-    const QString& privateKey, const QString& deviceIpv4Address,
-    const QString& deviceIpv6Address, const QString& serverIpv4Gateway,
-    const QString& serverIpv6Gateway, const QString& serverPublicKey,
-    const QString& serverIpv4AddrIn, const QString& serverIpv6AddrIn,
-    const QString& allowedIPAddressRanges, int serverPort, bool ipv6Enabled) {
+bool WgQuickProcess::validateWgArgs(const QString& serverIpv4Gateway,
+                                    const QString& serverIpv6Gateway) {
   // We may want to do more advanced validation in the future
-  Q_UNUSED(serverPort);
-  Q_UNUSED(ipv6Enabled);
 
 #define VALIDATE(x) \
   if (x.contains("\n")) return false;
-  VALIDATE(privateKey);
-  VALIDATE(deviceIpv4Address);
-  VALIDATE(deviceIpv6Address);
   VALIDATE(serverIpv4Gateway);
   VALIDATE(serverIpv6Gateway);
-  VALIDATE(serverPublicKey);
-  VALIDATE(serverIpv4AddrIn);
-  VALIDATE(serverIpv6AddrIn);
-  VALIDATE(allowedIPAddressRanges);
 #undef VALIDATE
 
   return true;
 }
 
 QString WgQuickProcess::writeWgConfigFile(QTemporaryDir& tmpDir,
-                                          const QString& deviceIpv4Address,
-                                          const QString& deviceIpv6Address,
                                           const QString& serverIpv4Gateway,
                                           const QString& serverIpv6Gateway,
                                           bool ipv6Enabled) {
   QByteArray content;
-  content.append("[Interface]\nAddress = ");
-  content.append(deviceIpv4Address.toUtf8());
-
-  if (ipv6Enabled) {
-    content.append(", ");
-    content.append(deviceIpv6Address.toUtf8());
-  }
-
-  content.append("\nDNS = ");
+  content.append("[Interface]\nDNS = ");
   content.append(serverIpv4Gateway.toUtf8());
 
   if (ipv6Enabled) {
@@ -108,17 +85,10 @@ QString WgQuickProcess::writeWgConfigFile(QTemporaryDir& tmpDir,
 }
 
 // static
-bool WgQuickProcess::run(
-    Daemon::Op op, const QString& privateKey, const QString& deviceIpv4Address,
-    const QString& deviceIpv6Address, const QString& serverIpv4Gateway,
-    const QString& serverIpv6Gateway, const QString& serverPublicKey,
-    const QString& serverIpv4AddrIn, const QString& serverIpv6AddrIn,
-    const QString& allowedIPAddressRanges, int serverPort, bool ipv6Enabled) {
+bool WgQuickProcess::run(Daemon::Op op, const QString& serverIpv4Gateway,
+                         const QString& serverIpv6Gateway, bool ipv6Enabled) {
   // Validate
-  if (!validateWgArgs(privateKey, deviceIpv4Address, deviceIpv6Address,
-                      serverIpv4Gateway, serverIpv6Gateway, serverPublicKey,
-                      serverIpv4AddrIn, serverIpv6AddrIn,
-                      allowedIPAddressRanges, serverPort, ipv6Enabled)) {
+  if (!validateWgArgs(serverIpv4Gateway, serverIpv6Gateway)) {
     qWarning("Config arguments are not valid.");
     return false;
   }
@@ -129,9 +99,8 @@ bool WgQuickProcess::run(
     qWarning("Cannot create a temporary directory");
     return false;
   }
-  QString configFile =
-      writeWgConfigFile(tmpDir, deviceIpv4Address, deviceIpv6Address,
-                        serverIpv4Gateway, serverIpv6Gateway, ipv6Enabled);
+  QString configFile = writeWgConfigFile(tmpDir, serverIpv4Gateway,
+                                         serverIpv6Gateway, ipv6Enabled);
   if (configFile.isEmpty()) {
     logger.log() << "Failed to create the config file";
     return false;

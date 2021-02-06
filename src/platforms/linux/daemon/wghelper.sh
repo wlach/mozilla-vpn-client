@@ -14,7 +14,6 @@ SELF="$(readlink -f "${BASH_SOURCE[0]}")"
 export PATH="${SELF%/*}:$PATH"
 
 INTERFACE=""
-ADDRESSES=( )
 DNS=( )
 CONFIG_FILE=""
 
@@ -41,7 +40,6 @@ parse_options() {
 		[[ $key == "[Interface]" ]] && interface_section=1
 		if [[ $interface_section -eq 1 ]]; then
 			case "$key" in
-			Address) ADDRESSES+=( ${value//,/ } ); continue ;;
 			DNS) for v in ${value//,/ }; do
 				[[ $v =~ (^[0-9.]+$)|(^.*:.*$) ]] && DNS+=( $v )
 			done; continue ;;
@@ -69,12 +67,6 @@ del_if() {
 			ip -6 rule delete table main suppress_prefixlength 0
 		done
 	fi
-}
-
-add_addr() {
-	local proto=-4
-	[[ $1 == *:* ]] && proto=-6
-	ip $proto address add "$1" dev "$INTERFACE"
 }
 
 set_mtu_up() {
@@ -159,9 +151,6 @@ add_default() {
 cmd_up() {
 	local i
 	trap 'del_if; exit' INT TERM EXIT
-	for i in "${ADDRESSES[@]}"; do
-		add_addr "$i"
-	done
 	set_mtu_up
 	set_dns
 	# Get the allowed ips from wg show (added to peer using set_conf always 0.0.0.0/0 ::/0)

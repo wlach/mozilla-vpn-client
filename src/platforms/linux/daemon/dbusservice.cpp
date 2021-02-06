@@ -43,6 +43,7 @@ void DBusService::setAdaptor(DbusAdaptor* adaptor) {
 }
 
 bool DBusService::checkInterface() {
+  // TODO: Replace with new helper methods
   logger.log() << "Checking interface";
 
   wg_device* device = nullptr;
@@ -103,6 +104,7 @@ QByteArray DBusService::getStatus() {
   QJsonObject json;
 
   wg_device* device = nullptr;
+  // TODO - Replace with helper methods
   if (wg_get_device(&device, WG_INTERFACE) != 0) {
     logger.log() << "Unable to get device";
     json.insert("status", QJsonValue(false));
@@ -138,44 +140,40 @@ bool DBusService::run(Op op, const Config& config) {
   // WG Up commands
   if (op == Up) {
     // We could call checkInterface instead of this check.
-    if (WireguardHelper::interfaceExists()) {
-      qWarning("Interface `%s` already exists.", WG_INTERFACE);
+    if (WireguardHelper::deviceExists()) {
+      qWarning("Interface already exists.");
       // ToDo - do we want to try and do clean-up here?
       return false;
     }
     // add_if
-    if (!WireguardHelper::addIf()) {
+    if (!WireguardHelper::addDevice()) {
       return false;
     }
     // set conf
     if (!WireguardHelper::configureDevice(config)) {
       return false;
     }
+    // add device ids
+    if (!WireguardHelper::addDeviceIps(config)) {
+      return false;
+    }
   }
 
   // WG Down commands
   if (op == Down) {
-    if (!WireguardHelper::interfaceExists()) {
+    if (!WireguardHelper::deviceExists()) {
       qWarning("Wireguard interface `%s` does not exist. Cannot proceed.",
                WG_INTERFACE);
       return false;
     }
   }
 
-  QStringList addresses;
-  for (const IPAddressRange& ip : config.m_allowedIPAddressRanges) {
-    addresses.append(ip.toString());
-  }
-
-  bool run_status = WgQuickProcess::run(
-      op, config.m_privateKey, config.m_deviceIpv4Address,
-      config.m_deviceIpv6Address, config.m_serverIpv4Gateway,
-      config.m_serverIpv6Gateway, config.m_serverPublicKey,
-      config.m_serverIpv4AddrIn, config.m_serverIpv6AddrIn,
-      addresses.join(", "), config.m_serverPort, config.m_ipv6Enabled);
+  bool run_status =
+      WgQuickProcess::run(op, config.m_deviceIpv4Address,
+                          config.m_deviceIpv6Address, config.m_ipv6Enabled);
 
   if (op == Down && run_status == true) {
-    if (!WireguardHelper::delIf()) {
+    if (!WireguardHelper::delDevice()) {
       return false;
     }
   }
