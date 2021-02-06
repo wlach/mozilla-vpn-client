@@ -194,7 +194,7 @@ wg_peer* WireguardHelper::buildPeerForDevice(wg_device* device,
 }
 
 
-bool WireguardHelper::setConf(const Daemon::Config& config) {
+bool WireguardHelper::configureDevice(const Daemon::Config& config) {
   /*
    * Set conf:
    * - sets name of device

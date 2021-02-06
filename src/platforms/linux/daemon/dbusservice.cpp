@@ -148,7 +148,7 @@ bool DBusService::run(Op op, const Config& config) {
       return false;
     }
     // set conf
-    if (!WireguardHelper::setConf(config)) {
+    if (!WireguardHelper::configureDevice(config)) {
       return false;
     }
   }
@@ -185,7 +185,7 @@ bool DBusService::run(Op op, const Config& config) {
 
 bool DBusService::switchServer(const Config& config) {
   logger.log() << "Switching server";
-  return WireguardHelper::setConf(config);
+  return WireguardHelper::configureDevice(config);
 }
 
 bool DBusService::supportServerSwitching(const Config& config) const {

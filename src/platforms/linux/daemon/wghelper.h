@@ -16,7 +16,7 @@ class WireguardHelper final {
   static QStringList currentDevices();
   // up
   static bool addIf();
-  static bool setConf(const Daemon::Config& config);
+  static bool configureDevice(const Daemon::Config& config);
   // down
   static bool delIf();
 
