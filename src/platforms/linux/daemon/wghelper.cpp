@@ -35,7 +35,9 @@ namespace {
 Logger logger(LOG_LINUX, "WireguardHelper");
 }
 
-// HELPERS
+/*
+ * HELPERS
+ */
 
 char* iface_name() { return QString(WG_INTERFACE).toLocal8Bit().data(); }
 
@@ -43,35 +45,9 @@ char* addrToText(struct sockaddr_in* addr) { return inet_ntoa(addr->sin_addr); }
 
 // END HELPERS
 
-// static
-bool WireguardHelper::deviceExists() {
-  // Also confirms it is wireguard.
-  return WireguardHelper::currentDevices().contains(iface_name());
-};
-
-// static
-QStringList WireguardHelper::currentDevices() {
-  char *deviceNames, *deviceName;
-  size_t len;
-  QStringList devices;
-  deviceNames = wg_list_device_names();
-  wg_for_each_device_name(deviceNames, deviceName, len) {
-    devices.append(deviceName);
-  }
-  free(deviceNames);
-  return devices;
-}
-
-// static
-bool WireguardHelper::addDevice() {
-  int returnCode = wg_add_device(iface_name());
-  if (returnCode != 0) {
-    qWarning("Adding interface `%s` failed with return code: %d", iface_name(),
-             returnCode);
-    return false;
-  }
-  return true;
-}
+/*
+ * PRIVATE METHODS
+ */
 
 // static
 bool WireguardHelper::setPeerEndpoint(struct sockaddr* peerEndpoint,
@@ -287,6 +263,29 @@ wg_peer* WireguardHelper::buildPeerForDevice(wg_device* device,
   return peer;
 }
 
+/*
+ * PUBLIC METHODS
+ */
+
+// static
+bool WireguardHelper::deviceExists() {
+  // Also confirms it is wireguard.
+  return WireguardHelper::currentDevices().contains(iface_name());
+};
+
+// static
+QStringList WireguardHelper::currentDevices() {
+  char *deviceNames, *deviceName;
+  size_t len;
+  QStringList devices;
+  deviceNames = wg_list_device_names();
+  wg_for_each_device_name(deviceNames, deviceName, len) {
+    devices.append(deviceName);
+  }
+  free(deviceNames);
+  return devices;
+}
+
 bool WireguardHelper::configureDevice(const Daemon::Config& config) {
   /*
    * Set conf:
@@ -296,7 +295,7 @@ bool WireguardHelper::configureDevice(const Daemon::Config& config) {
    * - sets endpoint on peer
    * - sets allowed ips on peer
    *
-   * (setConf isn't a great name)
+   *  TODO - I don't think anything here is linux specific
    */
 
   // DEVICE
@@ -328,6 +327,7 @@ bool WireguardHelper::configureDevice(const Daemon::Config& config) {
   return true;
 }
 bool WireguardHelper::addDeviceIps(const Daemon::Config& config) {
+  // TODO - These are linux specific
   if (!addIP4AddressToDevice(config)) {
     return false;
   }
@@ -340,7 +340,19 @@ bool WireguardHelper::addDeviceIps(const Daemon::Config& config) {
 }
 
 // static
+bool WireguardHelper::addDevice() {
+  int returnCode = wg_add_device(iface_name());
+  if (returnCode != 0) {
+    qWarning("Adding interface `%s` failed with return code: %d", iface_name(),
+             returnCode);
+    return false;
+  }
+  return true;
+}
+
+// static
 bool WireguardHelper::delDevice() {
+  // TODO - not linux specific
   int returnCode = wg_del_device(iface_name());
   if (returnCode != 0) {
     qWarning("Deleting interface `%s` failed with return code: %d",
