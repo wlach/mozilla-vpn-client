@@ -157,6 +157,10 @@ bool DBusService::run(Op op, const Config& config) {
     if (!WireguardHelper::addDeviceIps(config)) {
       return false;
     }
+    // set mtu and device up
+    if (!WireguardHelper::setMTUAndUp()) {
+      return false;
+    }
   }
 
   // WG Down commands

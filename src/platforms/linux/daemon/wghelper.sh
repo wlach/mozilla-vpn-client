@@ -69,11 +69,6 @@ del_if() {
 	fi
 }
 
-set_mtu_up() {
-	# Using default MTU of 1420
-	ip link set mtu 1420 up dev "$INTERFACE"
-}
-
 resolvconf_iface_prefix() {
 	[[ -f /etc/resolvconf/interface-order ]] || return 0
 	local iface
@@ -151,7 +146,6 @@ add_default() {
 cmd_up() {
 	local i
 	trap 'del_if; exit' INT TERM EXIT
-	set_mtu_up
 	set_dns
 	# Get the allowed ips from wg show (added to peer using set_conf always 0.0.0.0/0 ::/0)
 	# Then process them with add_default

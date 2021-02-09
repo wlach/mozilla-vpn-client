@@ -18,6 +18,7 @@ class WireguardHelper final {
   static bool addDevice();
   static bool configureDevice(const Daemon::Config& config);
   static bool addDeviceIps(const Daemon::Config& config);
+  static bool setMTUAndUp();
   // down
   static bool delDevice();
 
