@@ -47,6 +47,9 @@ InspectorWebSocketConnection::InspectorWebSocketConnection(
           &InspectorWebSocketConnection::stateChanged);
   connect(MozillaVPN::instance()->controller(), &Controller::stateChanged, this,
           &InspectorWebSocketConnection::stateChanged);
+
+  // Let's inform the client about the current status.
+  stateChanged();
 }
 
 InspectorWebSocketConnection::~InspectorWebSocketConnection() {
@@ -183,12 +186,34 @@ void InspectorWebSocketConnection::parseCommand(const QByteArray& command) {
   }
 
   if (parts[0].trimmed() == "show_ui") {
-    if (parts.length() != 2) {
-      tooManyArguments(1);
+    if (parts.length() != 1) {
+      tooManyArguments(0);
       return;
     }
 
     QmlEngineHolder::instance()->showWindow();
+    m_connection->sendTextMessage("ok");
+    return;
+  }
+
+  if (parts[0].trimmed() == "activate") {
+    if (parts.length() != 1) {
+      tooManyArguments(0);
+      return;
+    }
+
+    MozillaVPN::instance()->activate();
+    m_connection->sendTextMessage("ok");
+    return;
+  }
+
+  if (parts[0].trimmed() == "deactivate") {
+    if (parts.length() != 1) {
+      tooManyArguments(0);
+      return;
+    }
+
+    MozillaVPN::instance()->deactivate();
     m_connection->sendTextMessage("ok");
     return;
   }
@@ -260,6 +285,8 @@ void InspectorWebSocketConnection::stateChanged() {
   buffer.append(QString::number(MozillaVPN::instance()->state()));
   buffer.append("-");
   buffer.append(QString::number(MozillaVPN::instance()->controller()->state()));
+
+  m_connection->sendTextMessage(buffer);
 }
 
 // static
