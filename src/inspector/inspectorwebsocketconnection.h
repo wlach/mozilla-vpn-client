@@ -31,6 +31,7 @@ class InspectorWebSocketConnection final : public QObject {
   void tooManyArguments(int arguments);
   QQuickItem* findObject(const QString& name);
 
+  void stateChanged();
   void logEntryAdded(const QByteArray& log);
 
  private:

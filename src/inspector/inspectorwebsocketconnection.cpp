@@ -42,6 +42,11 @@ InspectorWebSocketConnection::InspectorWebSocketConnection(
 
   connect(LogHandler::instance(), &LogHandler::logEntryAdded, this,
           &InspectorWebSocketConnection::logEntryAdded);
+
+  connect(MozillaVPN::instance(), &MozillaVPN::stateChanged, this,
+          &InspectorWebSocketConnection::stateChanged);
+  connect(MozillaVPN::instance()->controller(), &Controller::stateChanged, this,
+          &InspectorWebSocketConnection::stateChanged);
 }
 
 InspectorWebSocketConnection::~InspectorWebSocketConnection() {
@@ -177,6 +182,17 @@ void InspectorWebSocketConnection::parseCommand(const QByteArray& command) {
     return;
   }
 
+  if (parts[0].trimmed() == "show_ui") {
+    if (parts.length() != 2) {
+      tooManyArguments(1);
+      return;
+    }
+
+    QmlEngineHolder::instance()->showWindow();
+    m_connection->sendTextMessage("ok");
+    return;
+  }
+
   m_connection->sendTextMessage("invalid command");
 }
 
@@ -236,6 +252,14 @@ void InspectorWebSocketConnection::logEntryAdded(const QByteArray& log) {
   buffer.append(log);
 
   m_connection->sendTextMessage(buffer);
+}
+
+void InspectorWebSocketConnection::stateChanged() {
+  QByteArray buffer;
+  buffer.append("@");
+  buffer.append(QString::number(MozillaVPN::instance()->state()));
+  buffer.append("-");
+  buffer.append(QString::number(MozillaVPN::instance()->controller()->state()));
 }
 
 // static
