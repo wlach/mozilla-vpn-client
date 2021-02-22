@@ -286,6 +286,18 @@ QStringList WireguardHelper::currentDevices() {
   return devices;
 }
 
+// static
+bool WireguardHelper::addDevice() {
+  int returnCode = wg_add_device(iface_name());
+  if (returnCode != 0) {
+    qWarning("Adding interface `%s` failed with return code: %d", iface_name(),
+             returnCode);
+    return false;
+  }
+  return true;
+}
+
+// static
 bool WireguardHelper::configureDevice(const Daemon::Config& config) {
   /*
    * Set conf:
@@ -373,14 +385,43 @@ bool WireguardHelper::setMTUAndUp() {
 }
 
 // static
-bool WireguardHelper::addDevice() {
-  int returnCode = wg_add_device(iface_name());
-  if (returnCode != 0) {
-    qWarning("Adding interface `%s` failed with return code: %d", iface_name(),
-             returnCode);
+bool WireguardHelper::setDNS(const Daemon::Config& config) {
+  struct ifreq ifr;
+  struct sockaddr_in* ifrAddr = (struct sockaddr_in*)&ifr.ifr_addr;
+  strncpy(ifr.ifr_name, iface_name(), IFNAMSIZ);
+  ifr.ifr_addr.sa_family = AF_INET;
+  int ret = ioctl(sockfd, SIOGIFINDEX, &ifr);
+  if (ret) {
+    logger.log() << "Failed to get ifrindex. Return code: " << ret;
     return false;
   }
-  return true;
+  int IFRINDEX = ifr.ifr_ifindex;
+
+  /*
+  The SetLinkDNS() method sets the DNS servers to use on a specific
+  interface. This method (and the following ones) may be used by
+  network management software to configure per-interface DNS
+  settings. It takes a network interface index as well as an array
+  of DNS server IP address records. Each array item consists of an
+  address family (either AF_INET or AF_INET6), followed by a 4-byte
+  or 16-byte array with the raw address data.
+
+  The command that works on command line winth annotations
+  sudo
+  busctl
+  call
+  org.freedesktop.resolve1
+  /org/freedesktop/resolve1
+  org.freedesktop.resolve1.Manager
+  SetLinkDNS
+  'ia(iay)' <- don't know what that is
+  377 <- interface index
+  1 <- the next three numbers must be some kind of rep of the array
+  2
+  4
+  8 8 8 8 <- dns ip address
+
+  */
 }
 
 // static
@@ -393,4 +434,9 @@ bool WireguardHelper::delDevice() {
     return false;
   }
   return true;
+}
+
+// static
+bool WireguardHelper::unsetDNS() {
+  // Stuff
 }
