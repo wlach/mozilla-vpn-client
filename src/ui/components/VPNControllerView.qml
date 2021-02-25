@@ -504,6 +504,7 @@ Rectangle {
 
         VPNIcon {
             id: settingsImage
+            objectName: "settingsIcon"
 
             anchors.centerIn: settingsButton
         }

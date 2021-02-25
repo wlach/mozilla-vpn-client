@@ -28,6 +28,7 @@ VPNFlickable {
 
         Image {
             id: backImage
+            objectName: "settingsBackIcon"
 
             source: "../resources/close-dark.svg"
             sourceSize.width: Theme.iconSize
@@ -52,6 +53,7 @@ VPNFlickable {
 
     VPNButton {
         id: manageAccountButton
+        objectName: "manageAccountButton"
 
         text: qsTrId("vpn.main.manageAccount")
         anchors.top: vpnPanel.bottom
@@ -161,6 +163,7 @@ VPNFlickable {
 
     VPNSignOut {
         id: signOutLink
+        objectName: "signOutLink"
 
         onClicked: VPNController.logout()
     }
