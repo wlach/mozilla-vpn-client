@@ -106,6 +106,11 @@ bool Daemon::activate(const InterfaceConfig& config) {
       return false;
     }
   }
+  if (supportDNSUtils()) {
+    if (!dnsutils()->setDNS(config)) {
+      return false;
+    }
+  }
 
   m_lastConfig = config;
   m_connected = run(Up, m_lastConfig);
@@ -251,6 +256,11 @@ bool Daemon::deactivate(bool emitSignals) {
     qWarning("Wireguard interface `%s` does not exist. Cannot proceed.",
              WG_INTERFACE);
     return false;
+  }
+  if (supportDNSUtils()) {
+    if (!dnsutils()->unsetDNS()) {
+      return false;
+    }
   }
 
   m_connected = false;
