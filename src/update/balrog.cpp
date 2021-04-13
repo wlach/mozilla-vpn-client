@@ -38,7 +38,7 @@ typedef unsigned char BalrogValidateSignature(gostring_t publicKey,
                                               gostring_t signature,
                                               gostring_t data);
 
-#elif defined(MVPN_MACOS)
+#elif defined(MVPN_MACOS) || defined(MVPN_LINUX)
 #  define EXPORT __attribute__((visibility("default")))
 
 extern "C" {
@@ -90,7 +90,7 @@ Balrog::~Balrog() {
 QString Balrog::userAgent() {
 #if defined(MVPN_WINDOWS)
   return BALROG_WINDOWS_UA;
-#elif defined(MVPN_MACOS)
+#elif defined(MVPN_MACOS) || defined(MVPN_LINUX)
   return BALROG_MACOS_UA;
 #else
 #  error Unsupported platform

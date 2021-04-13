@@ -295,6 +295,8 @@ else:linux:!android {
     QT += networkauth
     QT += dbus
 
+    LIBS += ../balrog/balrog.a
+
     DEFINES += MVPN_LINUX
     DEFINES += PROTOCOL_VERSION=\\\"$$DBUS_PROTOCOL_VERSION\\\"
 
