@@ -69,6 +69,7 @@
         <file>ui/views/ViewOnboarding.qml</file>
         <file>ui/views/ViewAuthentications.qml</file>
         <file>ui/views/ViewAuthenticationEmail.qml</file>
+        <file>ui/views/ViewAuthenticationMail.qml</file>
         <file>ui/views/ViewUpdate.qml</file>
         <file>ui/resources/flags/AC.png</file>
         <file>ui/resources/flags/AD.png</file>

@@ -76,6 +76,22 @@ Item {
           anchors.top: authGoogle.bottom
           anchors.topMargin: 40
       }
+
+      VPNPanel {
+          id: authMail
+          logoSize: 70
+          height: 140
+          logo: "../resources/auth_email.png"
+          logoTitle: "Mail subscription"
+          logoSubtitle: "Anonymous payment"
+          anchors.top: authFacebook.bottom
+          anchors.topMargin: 40
+
+          VPNMouseArea {
+              onClicked: stackview.push("ViewAuthenticationMail.qml")
+          }
+
+      }
     }
 
 }
