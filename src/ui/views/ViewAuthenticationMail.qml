@@ -27,9 +27,9 @@ Item {
       VPNPanel {
           id: panel
           logoSize: 70
-          height: 250
+          height: 270
           logo: "../resources/auth_email.png"
-          logoTitle: "Send this unique code to:"
+          logoTitle: "Send 50$ and this unique code to:"
           logoSubtitle: "Metal Box Factory\nSuite 441, 4th floor\n30 Great Guildford Street\nLondon\nSE1 0HS"
           anchors.top: parent.top
           anchors.topMargin: 10
@@ -66,7 +66,7 @@ Item {
           anchors.top: email.bottom
           anchors.topMargin: 10
 
-          text: "We will enable your account in 20 days"
+          text: "When your mail is received, this code and\nthis client will be allowed to use the VPN for 1 year."
           anchors.horizontalCenterOffset: 0
           anchors.horizontalCenter: parent.horizontalCenter
       }
