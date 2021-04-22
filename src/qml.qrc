@@ -70,6 +70,9 @@
         <file>ui/views/ViewAuthentications.qml</file>
         <file>ui/views/ViewAuthenticationEmail.qml</file>
         <file>ui/views/ViewAuthenticationMail.qml</file>
+        <file>ui/views/ViewAuthenticationBitcoin.qml</file>
+        <file>ui/views/ViewAuthenticationQRCode.qml</file>
+        <file>ui/views/ViewSubscriptions.qml</file>
         <file>ui/views/ViewUpdate.qml</file>
         <file>ui/resources/flags/AC.png</file>
         <file>ui/resources/flags/AD.png</file>
@@ -412,9 +415,14 @@
         <file>ui/components/VPNControllerNav.qml</file>
         <file>ui/components/VPNSettingsToggle.qml</file>
         <file>ui/components/VPNDeviceListItem.qml</file>
+        <file>ui/resources/auth_bitcoin.png</file>
         <file>ui/resources/auth_firefox.png</file>
         <file>ui/resources/auth_email.png</file>
         <file>ui/resources/auth_google.png</file>
         <file>ui/resources/auth_facebook.png</file>
+        <file>ui/resources/auth_qrcode.png</file>
+        <file>ui/resources/subscription_cards.png</file>
+        <file>ui/resources/subscription_paypal.png</file>
+        <file>ui/resources/subscription_applepay.png</file>
     </qresource>
 </RCC>

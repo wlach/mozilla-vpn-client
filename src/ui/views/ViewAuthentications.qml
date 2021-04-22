@@ -92,6 +92,38 @@ Item {
           }
 
       }
+
+      VPNPanel {
+          id: authBitcoin
+          logoSize: 70
+          height: 140
+          logo: "../resources/auth_bitcoin.png"
+          logoTitle: "Bitcoin"
+          logoSubtitle: "Anonymous payment"
+          anchors.top: authMail.bottom
+          anchors.topMargin: 40
+
+          VPNMouseArea {
+              onClicked: stackview.push("ViewAuthenticationBitcoin.qml")
+          }
+
+      }
+
+      VPNPanel {
+          id: authQRCode
+          logoSize: 70
+          height: 140
+          logo: "../resources/auth_qrcode.png"
+          logoTitle: "QR-Code"
+          logoSubtitle: "Anonymous access"
+          anchors.top: authBitcoin.bottom
+          anchors.topMargin: 40
+
+          VPNMouseArea {
+              onClicked: stackview.push("ViewAuthenticationQRCode.qml")
+          }
+
+      }
     }
 
 }

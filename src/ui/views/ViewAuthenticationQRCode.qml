@@ -8,13 +8,13 @@ import "../components"
 import "../themes/themes.js" as Theme
 
 Item {
-    id: viewAuthenticationMail
+    id: viewAuthenticationQRCode
 
     VPNMenu {
         id: menu
-        objectName: "authenticationMailBackButton"
+        objectName: "authenticationQRCodeBackButton"
 
-        title: "Subscribe by Mail"
+        title: "Use a QR-Code"
         isSettingsView: false
         onActiveFocusChanged: if (focus) forceFocus = true
     }
@@ -28,34 +28,25 @@ Item {
           id: panel
           logoSize: 70
           height: 270
-          logo: "../resources/auth_email.png"
-          logoTitle: "Send the PDF and 50$ to:"
-          logoSubtitle: "Metal Box Factory\nSuite 441, 4th floor\n30 Great Guildford Street\nLondon\nSE1 0HS"
+          logo: "../resources/auth_qrcode.png"
+          logoTitle: "Scan a QR-Code"
           anchors.top: parent.top
           anchors.topMargin: 10
       }
 
       VPNButton {
-          id: email
+          id: sendButton
 
           anchors.top: panel.bottom
           anchors.topMargin: 10
 
-          text: "Generate the PDF to print"
+          text: "Activate the camera"
           anchors.horizontalCenterOffset: 0
           anchors.horizontalCenter: parent.horizontalCenter
           radius: 5
-          onClicked: VPN.authenticate()
+          onClicked: stackview.push("ViewSubscriptions.qml")
 
-      }
-
-      Text {
-          anchors.top: email.bottom
-          anchors.topMargin: 10
-
-          text: "When your mail is received, this code and\nthis client will be allowed to use the VPN for 1 year."
-          anchors.horizontalCenterOffset: 0
-          anchors.horizontalCenter: parent.horizontalCenter
       }
     }
 }
+
