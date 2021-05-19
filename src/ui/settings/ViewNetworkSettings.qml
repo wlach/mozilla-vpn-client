@@ -76,13 +76,32 @@ VPNFlickable {
        }
     }
 
-    VPNCheckBoxAlert {
+    VPNCheckBoxRow {
+        id: multihopTunnel
+        objectName: "settingMultihopTunnel"
+
         anchors.top: localNetwork.visible ? localNetwork.bottom : ipv6.bottom
+        width: parent.width - Theme.windowMargin
+        visible: VPNFeatureList.multihopSupported
+
+        labelText: qsTrId("vpn.settings.multihopTunnel")
+        subLabelText: qsTrId("vpn.settings.multihopTunnel.description")
+        isChecked: (VPNSettings.multihopTunnel)
+        isEnabled: vpnFlickable.vpnIsOff
+        showDivider: vpnFlickable.vpnIsOff
+        onClicked: {
+            if (vpnFlickable.vpnIsOff) {
+                VPNSettings.multihopTunnel = !VPNSettings.multihopTunnel
+            }
+       }
+    }
+
+    VPNCheckBoxAlert {
+        anchors.top: multihopTunnel.visible ? multihopTunnel.bottom : localNetwork.visible ? localNetwork.bottom : ipv6.bottom
         visible: !vpnFlickable.vpnIsOff
 
         //% "VPN must be off to edit these settings"
         //: Associated to a group of settings that require the VPN to be disconnected to change
         errorMessage: qsTrId("vpn.settings.vpnMustBeOff")
     }
-
 }

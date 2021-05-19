@@ -75,6 +75,9 @@ constexpr const char* SETTINGS_NATIVEWINDOWSDATAMIGRATED =
 constexpr bool SETTINGS_GLEANENABLED_DEFAULT = true;
 constexpr const char* SETTINGS_GLEANENABLED = "gleanEnabled";
 
+constexpr bool SETTINGS_MULTIHOPTUNNEL_DEFAULT = true;
+constexpr const char* SETTINGS_MULTIHOPTUNNEL = "multihopTunnel";
+
 constexpr bool SETTINGS_DEVELOPERUNLOCK_DEFAULT = false;
 constexpr const char* SETTINGS_DEVELOPERUNLOCK = "developerUnlock";
 
@@ -225,6 +228,9 @@ GETSETDEFAULT(SETTINGS_VPNDISABLEDAPPS_DEFAULT, QStringList, toStringList,
 GETSETDEFAULT(SETTINGS_GLEANENABLED_DEFAULT, bool, toBool,
               SETTINGS_GLEANENABLED, hasGleanEnabled, gleanEnabled,
               setGleanEnabled, gleanEnabledChanged)
+GETSETDEFAULT(SETTINGS_MULTIHOPTUNNEL_DEFAULT, bool, toBool,
+              SETTINGS_MULTIHOPTUNNEL, hasMultihopTunnel, multihopTunnel,
+              setMultihopTunnel, multihopTunnelChanged)
 GETSETDEFAULT(SETTINGS_DEVELOPERUNLOCK_DEFAULT, bool, toBool,
               SETTINGS_DEVELOPERUNLOCK, hasDeveloperUnlock, developerUnlock,
               setDeveloperUnlock, developerUnlockChanged)

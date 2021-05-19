@@ -28,6 +28,8 @@ class SettingsHolder final : public QObject {
                  setProtectSelectedApps NOTIFY protectSelectedAppsChanged)
   Q_PROPERTY(bool gleanEnabled READ gleanEnabled WRITE setGleanEnabled NOTIFY
                  gleanEnabledChanged)
+  Q_PROPERTY(bool multihopTunnel READ multihopTunnel WRITE setMultihopTunnel
+                 NOTIFY multihopTunnelChanged)
 
   Q_PROPERTY(bool developerUnlock READ developerUnlock WRITE setDeveloperUnlock
                  NOTIFY developerUnlockChanged)
@@ -93,6 +95,7 @@ class SettingsHolder final : public QObject {
          setProtectSelectedApps)
   GETSET(QStringList, hasVpnDisabledApps, vpnDisabledApps, setVpnDisabledApps)
   GETSET(bool, hasGleanEnabled, gleanEnabled, setGleanEnabled)
+  GETSET(bool, hasMultihopTunnel, multihopTunnel, setMultihopTunnel)
   GETSET(bool, hasDeveloperUnlock, developerUnlock, setDeveloperUnlock)
   GETSET(bool, hasStagingServer, stagingServer, setStagingServer)
   GETSET(bool, hasUntestedFeatures, untestedFeatures, setUntestedFeatures)
@@ -135,6 +138,7 @@ class SettingsHolder final : public QObject {
   void protectSelectedAppsChanged(bool value);
   void vpnDisabledAppsChanged(const QStringList& apps);
   void gleanEnabledChanged(bool value);
+  void multihopTunnelChanged(bool value);
   void developerUnlockChanged(bool value);
   void stagingServerChanged(bool value);
   void untestedFeaturesChanged(bool value);

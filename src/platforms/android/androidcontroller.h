@@ -22,7 +22,8 @@ class AndroidController final : public ControllerImpl,
   // from ControllerImpl
   void initialize(const Device* device, const Keys* keys) override;
 
-  void activate(const Server& data, const Device* device, const Keys* keys,
+  void activate(const QList<Server>& serverList, const Device* device,
+                const Keys* keys,
                 const QList<IPAddressRange>& allowedIPAddressRanges,
                 const QList<QString>& vpnDisabledApps, Reason reason) override;
   void resume_activate();

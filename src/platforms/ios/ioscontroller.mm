@@ -96,14 +96,16 @@ void IOSController::initialize(const Device* device, const Keys* keys) {
       }];
 }
 
-void IOSController::activate(const Server& server, const Device* device, const Keys* keys,
-                             const QList<IPAddressRange>& allowedIPAddressRanges,
+void IOSController::activate(const QList<Server>& serverList, const Device* device,
+                             const Keys* keys, const QList<IPAddressRange>& allowedIPAddressRanges,
                              const QList<QString>& vpnDisabledApps, Reason reason) {
   Q_UNUSED(device);
   Q_UNUSED(keys);
 
-  // This feature is not supported on macos/ios yet.
+  // These features iares not supported on macos/ios yet.
+  Q_ASSERT(serverList.count() == 1);
   Q_ASSERT(vpnDisabledApps.isEmpty());
+  const Server& server = serverList[0];
 
   logger.log() << "IOSController activating" << server.hostname();
 

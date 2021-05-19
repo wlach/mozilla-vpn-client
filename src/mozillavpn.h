@@ -187,6 +187,8 @@ class MozillaVPN final : public QObject {
 
   void changeServer(const QString& countryCode, const QString& city);
 
+  const Server& randomHop(ServerData& data);
+
   const QString versionString() const { return QString(APP_VERSION); }
 
   const QString buildNumber() const { return QString(BUILD_ID); }

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "featurelist.h"
+#include "settingsholder.h"
 
 #ifdef MVPN_ANDROID
 #  include "platforms/android/androidutils.h"
@@ -76,5 +77,13 @@ bool FeatureList::gleanSupported() const {
   return false;
 #else
   return true;
+#endif
+}
+
+bool FeatureList::multihopSupported() const {
+#if defined(MVPN_LINUX)
+  return SettingsHolder::instance()->untestedFeatures();
+#else
+  return false;
 #endif
 }

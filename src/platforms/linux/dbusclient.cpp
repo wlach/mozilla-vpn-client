@@ -47,8 +47,9 @@ QDBusPendingCallWatcher* DBusClient::version() {
 }
 
 QDBusPendingCallWatcher* DBusClient::activate(
-    const Server& server, const Device* device, const Keys* keys,
+    const QList<Server>& server, const Device* device, const Keys* keys,
     const QList<IPAddressRange>& allowedIPAddressRanges) {
+  const Server& server = serverList[0];
   QJsonObject json;
   json.insert("privateKey", QJsonValue(keys->privateKey()));
   json.insert("deviceIpv4Address", QJsonValue(device->ipv4Address()));
