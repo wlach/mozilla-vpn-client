@@ -44,7 +44,9 @@ VPNFlickable {
 
     ColumnLayout {
         id: col
-        width: Math.min(Theme.maxHorizontalContentWidth, vpnFlickable.width)
+        anchors.right: parent.right
+        anchors.left: parent.left
+        maximumWidth: Theme.maxHorizontalContentWidth
         anchors.top: parent.top
         anchors.topMargin: headerLink.height + vpnFlickable.height * 0.08
         anchors.bottom: parent.bottom

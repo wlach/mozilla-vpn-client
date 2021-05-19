@@ -14,7 +14,8 @@ Item {
     Item {
         id: menuBar
 
-        width: parent.width
+        anchors.right: parent.right
+        anchors.left: parent.left
         height: 56
         // Ensure that menu is on top of possible scrollable
         // content.
@@ -24,7 +25,8 @@ Item {
             id: menuBackground
             color: Theme.bgColor
             y: 0
-            width: parent.width
+            anchors.right: parent.right
+            anchors.left: parent.left
             height: 55
         }
 
@@ -66,7 +68,8 @@ Item {
         Rectangle {
             color: "#0C0C0D0A"
             y: 55
-            width: parent.width
+            anchors.right: parent.right
+            anchors.left: parent.left
             height: 1
         }
     }
@@ -75,7 +78,8 @@ Item {
         url: VPNAndroidUtils.url
 
         height: parent.height - menuBar.height
-        width: parent.width
+        anchors.right: parent.right
+        anchors.left: parent.left
         y: menuBar.height
 
         onPageStarted: {

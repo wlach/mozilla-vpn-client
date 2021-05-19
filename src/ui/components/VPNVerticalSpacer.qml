@@ -6,5 +6,6 @@ import QtQuick 2.0
 
 Rectangle {
     color: "transparent"
-    width: parent.width
+    anchors.right: parent.right
+    anchors.left: parent.left
 }

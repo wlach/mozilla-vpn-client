@@ -26,7 +26,8 @@ ColumnLayout {
     opacity: isEnabled && applist.count > 0 ? 1 : 0.5
     anchors.horizontalCenter: parent.horizontalCenter
     visible: VPNSettings.protectSelectedApps
-    width: parent.width
+    anchors.right: parent.right
+    anchors.left: parent.left
     spacing: 0
 
     Behavior on y {

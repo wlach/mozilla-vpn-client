@@ -14,7 +14,8 @@ VPNFlickable {
     id: vpnFlickable
     objectName: "settingsView"
 
-    width: window.width
+    anchors.right: parent.right
+    anchors.left: parent.left
     flickContentHeight: settingsList.y + settingsList.height + signOutLink.height + signOutLink.anchors.bottomMargin
     hideScollBarOnStackTransition: true
 

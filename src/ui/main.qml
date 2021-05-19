@@ -90,7 +90,8 @@ Window {
 
         color: "transparent"
         height: marginHeightByDevice()
-        width: window.width
+        anchors.right: parent.right
+        anchors.left: parent.left
 
         function marginHeightByDevice() {
             if (Qt.platform.os !== "ios") {
@@ -122,7 +123,8 @@ Window {
     VPNStackView {
         id: mainStackView
         initialItem: mainView
-        width: parent.width
+        anchors.right: parent.right
+        anchors.left: parent.left
         anchors.top: iosSafeAreaTopMargin.bottom
         height: safeContentHeight
         clip: true

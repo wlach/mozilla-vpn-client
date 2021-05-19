@@ -16,7 +16,8 @@ Item {
     property var isSettingsView: false
 
     anchors.horizontalCenter: parent.horizontalCenter
-    width: Math.min(parent.width, Theme.maxHorizontalContentWidth)
+    anchors.left: parent.left
+    anchors.right: parent.right
     height: panel.height
 
     ColumnLayout {
@@ -24,7 +25,7 @@ Item {
 
         anchors.leftMargin: Theme.windowMargin * 1.5
         anchors.rightMargin: Theme.windowMargin * 1.5
-        width: parent.width - Theme.windowMargin * 3
+        width: Math.min(parent.width - Theme.windowMargin * 3, Theme.maxHorizontalContentWidth)
         anchors.verticalCenter: parent.verticalCenter
         anchors.horizontalCenter: parent.horizontalCenter
         spacing: 0

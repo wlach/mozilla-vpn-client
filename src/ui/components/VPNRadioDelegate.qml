@@ -19,7 +19,8 @@ RadioDelegate {
     signal clicked()
 
     ButtonGroup.group: radioButtonGroup
-    width: parent.width
+    anchors.right: parent.right
+    anchors.left: parent.left
     height: Theme.rowHeight
 
     Component.onCompleted: {

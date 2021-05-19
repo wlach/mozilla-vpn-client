@@ -15,6 +15,9 @@ import "/glean/load.js" as Glean
 Item {
     id: root
 
+        anchors.right: parent.right
+        anchors.left: parent.left
+
     VPNMenu {
         id: menu
         title: qsTrId("vpn.settings.appPermissions")
@@ -28,7 +31,8 @@ Item {
         flickContentHeight: enableAppList.height + enableAppList.anchors.topMargin + (vpnOnAlert.visible ? vpnOnAlert.height : 0) + (disabledList.visible ? disabledList.height : 0) + (enabledList.visible ? enabledList.height : 0) + 100
         anchors.top: menu.bottom
         height: root.height - menu.height
-        width: root.width
+        anchors.right: parent.right
+        anchors.left: parent.left
         Component.onCompleted: {
             VPNAppPermissions.requestApplist();
             Glean.sample.appPermissionsViewOpened.record();

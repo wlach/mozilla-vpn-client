@@ -15,7 +15,8 @@ import "../themes/themes.js" as Theme
 Item {
     id: logs
 
-    width: window.width
+    anchors.right: parent.right
+    anchors.left: parent.left
     height: window.safeContentHeight
     Component.onCompleted: VPNCloseEventHandler.addView(logs)
 
@@ -31,7 +32,8 @@ Item {
         id: logScrollView
 
         height: logs.height - menu.height - copyClearWrapper.height
-        width: logs.width
+        anchors.right: parent.right
+        anchors.left: parent.left
         anchors.top: menu.bottom
         anchors.horizontalCenter: logs.horizontalCenter
         contentWidth: width - (Theme.windowMargin * 2)
@@ -48,7 +50,8 @@ Item {
             y: Theme.windowMargin
             font.pixelSize: 11
             lineHeight: 16
-            width: parent.width
+            anchors.right: parent.right
+            anchors.left: parent.left
 
             Connections {
                 target: VPN
@@ -66,7 +69,8 @@ Item {
     Rectangle {
         id: div
 
-        width: parent.width
+        anchors.right: parent.right
+        anchors.left: parent.left
         height: 1
         color: Theme.divider
         Layout.alignment: Qt.AlignRight
@@ -120,7 +124,8 @@ Item {
             id: divider
 
             height: 1
-            width: parent.width
+            anchors.right: parent.right
+            anchors.left: parent.left
             anchors.bottom: parent.bottom
             color: "#0C0C0D0A"
         }

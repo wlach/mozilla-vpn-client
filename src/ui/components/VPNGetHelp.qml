@@ -11,6 +11,7 @@ import "../themes/themes.js" as Theme
 
 Item {
     property alias isSettingsView: menu.isSettingsView
+    anchors.fill: parent
 
     VPNMenu {
         id: menu
@@ -24,7 +25,8 @@ Item {
     VPNList {
         objectName: "getHelpBackList"
         height: parent.height - menu.height
-        width: parent.width
+        anchors.right: parent.right
+        anchors.left: parent.left
         anchors.top: menu.bottom
         spacing: Theme.listSpacing
         anchors.topMargin: Theme.windowMargin

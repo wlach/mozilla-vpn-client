@@ -27,7 +27,8 @@ Item {
 
         height: parent.height - menu.height
         anchors.top: menu.bottom
-        width: parent.width
+        anchors.right: parent.right
+        anchors.left: parent.left
         onActiveFocusChanged: if (focus && lastFocusedItemIdx) repeater.itemAt(lastFocusedItemIdx).forceActiveFocus()
         Accessible.name: menu.title
         Accessible.role: Accessible.List
@@ -48,7 +49,8 @@ Item {
                 id: verticalSpacer
 
                 height: Theme.windowMargin / 2
-                width: parent.width
+                anchors.right: parent.right
+                anchors.left: parent.left
                 color: "transparent"
             }
 
@@ -57,7 +59,8 @@ Item {
                 objectName: "serverCountryList"
 
                 spacing: 14
-                width: parent.width
+                anchors.right: parent.right
+                anchors.left: parent.left
                 anchors.top: verticalSpacer.bottom
                 Component.onCompleted: {
 

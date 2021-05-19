@@ -21,7 +21,8 @@ VPNFlickable {
         }
     }
 
-    width: window.width
+    anchors.right: parent.right
+    anchors.left: parent.left
     flickContentHeight: footerContent.height + spacer1.height + vpnPanel.height + featureListBackground.height + (Theme.windowMargin * 4)
 
     VPNHeaderLink {
@@ -43,7 +44,8 @@ VPNFlickable {
     Item {
         id: spacer1
 
-        width: parent.width
+        anchors.right: parent.right
+        anchors.left: parent.left
         height: (Math.max(window.safeContentHeight * .04, Theme.windowMargin * 2))
     }
 
@@ -126,7 +128,8 @@ VPNFlickable {
         id: spacer2
         anchors.top: featureListBackground.bottom
         height: Math.max(Theme.windowMargin * 2, (window.safeContentHeight - flickContentHeight))
-        width: vpnFlickable.width
+        anchors.right: parent.right
+        anchors.left: parent.left
     }
 
 
@@ -135,7 +138,9 @@ VPNFlickable {
 
         anchors.top: spacer2.bottom
         anchors.horizontalCenter: parent.horizontalCenter
-        width: Math.min(vpnFlickable.width, Theme.maxHorizontalContentWidth)
+                anchors.right: parent.right
+        anchors.left: parent.left
+        maximumWidth: Theme.maxHorizontalContentWidth
         spacing: 0
 
         VPNButton {

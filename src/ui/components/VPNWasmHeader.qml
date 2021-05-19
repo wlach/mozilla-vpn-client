@@ -16,7 +16,8 @@ Button {
     id: wasmHeader
 
     height: 60
-    width: parent.width
+    anchors.right: parent.right
+    anchors.left: parent.left
     z: 2
     clip: true
     onClicked: mainStackView.replace("../components/VPNWasmMenu.qml", StackView.Immediate)

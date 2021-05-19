@@ -17,7 +17,8 @@ Item {
 
     Component.onCompleted: fade.start()
     height: window.safeContentHeight
-    width: parent.width
+    anchors.right: parent.right
+    anchors.left: parent.left
 
     VPNHeadline {
         id: headline

@@ -16,7 +16,8 @@ Item {
     property var isModalDialogOpened: removePopup.visible
     property var wasmView
     height: window.safeContentHeight
-    width: window.width
+    anchors.right: parent.right
+    anchors.left: parent.left
 
     VPNMenu {
         id: menu
@@ -32,7 +33,8 @@ Item {
 
         anchors.top: menu.bottom
         height: root.height - menu.height
-        width: root.width
+        anchors.right: parent.right
+        anchors.left: parent.left
         interactive: true
         flickContentHeight: maxDevicesReached.height + content.height + col.height
         contentHeight: maxDevicesReached.height + content.height + col.height
@@ -81,12 +83,14 @@ Item {
         VPNDevicesListHeader {
             id: maxDevicesReached
 
-            width: root.width
+            anchors.right: parent.right
+            anchors.left: parent.left
         }
 
         ColumnLayout {
             id: content
-            width: vpnFlickable.width
+            anchors.right: parent.right
+            anchors.left: parent.left
             anchors.top: maxDevicesReached.bottom
             anchors.topMargin: Theme.windowMargin / 2
             spacing: Theme.windowMargin / 2
@@ -108,7 +112,7 @@ Item {
                 id: col
                 spacing: 0
 
-                Layout.preferredWidth: vpnFlickable.width
+                Layout.fillWidth: true
                 Layout.alignment: Qt.AlignHCenter
 
                 VPNVerticalSpacer {

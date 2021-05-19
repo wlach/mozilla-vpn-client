@@ -32,7 +32,8 @@ Item {
 
         height: parent.height - menu.height
         anchors.top: menu.bottom
-        width: parent.width
+        anchors.right: parent.right
+        anchors.left: parent.left
         onActiveFocusChanged: {
             if (focus && lastFocusedItemIdx !== -1) {
               repeater.itemAt(lastFocusedItemIdx).forceActiveFocus();
@@ -57,7 +58,6 @@ Item {
 
             RowLayout {
                 id: row
-                width: parent.width - (defaultMargin * 2)
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.leftMargin: defaultMargin
@@ -145,7 +145,8 @@ Item {
                 objectName: "languageList"
 
                 spacing: 20
-                width: parent.width
+                anchors.right: parent.right
+                anchors.left: parent.left
                 anchors.top: divider.bottom
                 anchors.topMargin: 20
                 Component.onCompleted: {
