@@ -6,6 +6,26 @@
 #include "ipaddress.h"
 #include "leakdetector.h"
 
+#include <QHostAddress>
+#include <QPair>
+
+IPAddressRange::IPAddressRange(const QString& prefix) {
+  MVPN_COUNT_CTOR(IPAddressRange);
+
+  QStringList split = prefix.split('/');
+  m_ipAddress = split[0];
+  if (m_ipAddress.contains(':')) {
+    m_type = IPv6;
+    m_range = 128;
+  } else {
+    m_type = IPv4;
+    m_range = 32;
+  }
+  if (split.count() > 1) {
+    m_range = split[1].toInt();
+  }
+}
+
 IPAddressRange::IPAddressRange(const QString& ipAddress, uint32_t range,
                                IPAddressType type)
     : m_ipAddress(ipAddress), m_range(range), m_type(type) {

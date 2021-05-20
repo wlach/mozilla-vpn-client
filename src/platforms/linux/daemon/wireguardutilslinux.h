@@ -16,24 +16,26 @@ class WireguardUtilsLinux final : public WireguardUtils {
  public:
   WireguardUtilsLinux(QObject* parent);
   ~WireguardUtilsLinux();
-  bool interfaceExists() override;
-  bool addInterface() override;
+  bool interfaceExists(const QString& ifname) override;
+  bool addInterface(const InterfaceConfig& config) override;
   bool configureInterface(const InterfaceConfig& config) override;
-  bool deleteInterface() override;
-  bool addRoutePrefix(const IPAddressRange& prefix) override;
-  peerBytes getThroughputForInterface() override;
+  bool deleteInterface(const QString& ifname) override;
+  bool addRoutePrefix(const IPAddressRange& prefix,
+                      const QString& ifname) override;
+  peerBytes getThroughputForInterface(const QString& ifname) override;
 
  private:
   QStringList currentInterfaces();
   bool setPeerEndpoint(struct sockaddr* peerEndpoint, const QString& address,
                        int port);
-  bool setAllowedIpsOnPeer(struct wg_peer* peer,
-                           QList<IPAddressRange> allowedIPAddressRanges);
+  bool setPeerPrefix(struct wg_peer* peer, const IPAddressRange& prefix);
   bool buildPeerForDevice(struct wg_device* device,
                           const InterfaceConfig& conf);
   bool setRouteRules(int action, int flags, int addrfamily);
   bool setRoutePrefix(int action, int flags, const IPAddressRange& prefix);
   unsigned long getCgroupClass(const QString& path);
+  static bool buildAllowedIp(struct wg_allowedip*,
+                             const IPAddressRange& prefix);
 
   int m_nlsock = -1;
   int m_nlseq = 0;

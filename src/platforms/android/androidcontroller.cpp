@@ -132,7 +132,7 @@ void AndroidController::setFallbackConnectedNotification() {
 }
 
 void AndroidController::activate(
-    const QLIst<Server>& serverList, const Device* device, const Keys* keys,
+    const QList<Server>& serverList, const Device* device, const Keys* keys,
     const QList<IPAddressRange>& allowedIPAddressRanges,
     const QList<QString>& vpnDisabledApps, Reason reason) {
   logger.log() << "Activation";

@@ -187,18 +187,20 @@ void Controller::activateInternal() {
     vpnDisabledApps = settingsHolder->vpnDisabledApps();
   }
 
-  QList<Server> serverList = {server};
-  if (settingsHolder->multihopTunnel()) {
+  QList<Server> serverList;
+  if (FeatureList::instance()->multihopSupported() &&
+      settingsHolder->multihopTunnel()) {
     ServerData data;
-    Server hop;
-    do {
+    Server hop = vpn->randomHop(data);
+    while (serverList.contains(hop)) {
       hop = vpn->randomHop(data);
-    } while (serverList.contains(hop));
+    }
 
     logger.log() << "Multihop enabled via:" << data.cityName()
                  << data.countryName() << hop.ipv4AddrIn();
     serverList.append(hop);
   }
+  serverList.append(server);
 
   Q_ASSERT(m_impl);
   m_impl->activate(serverList, device, vpn->keys(), allowedIPAddressRanges,

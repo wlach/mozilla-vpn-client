@@ -47,9 +47,8 @@ QDBusPendingCallWatcher* DBusClient::version() {
 }
 
 QDBusPendingCallWatcher* DBusClient::activate(
-    const QList<Server>& server, const Device* device, const Keys* keys,
+    const Server& server, const Device* device, const Keys* keys, int hopindex,
     const QList<IPAddressRange>& allowedIPAddressRanges) {
-  const Server& server = serverList[0];
   QJsonObject json;
   json.insert("privateKey", QJsonValue(keys->privateKey()));
   json.insert("deviceIpv4Address", QJsonValue(device->ipv4Address()));
@@ -62,6 +61,7 @@ QDBusPendingCallWatcher* DBusClient::activate(
   json.insert("serverPort", QJsonValue((double)server.choosePort()));
   json.insert("ipv6Enabled",
               QJsonValue(SettingsHolder::instance()->ipv6Enabled()));
+  json.insert("hopindex", QJsonValue((double)hopindex));
 
   QJsonArray allowedIPAddesses;
   for (const IPAddressRange& i : allowedIPAddressRanges) {
@@ -82,9 +82,9 @@ QDBusPendingCallWatcher* DBusClient::activate(
   return watcher;
 }
 
-QDBusPendingCallWatcher* DBusClient::deactivate() {
+QDBusPendingCallWatcher* DBusClient::deactivate(int hopindex) {
   logger.log() << "Deactivate via DBus";
-  QDBusPendingReply<bool> reply = m_dbus->deactivate();
+  QDBusPendingReply<bool> reply = m_dbus->deactivate(hopindex);
   QDBusPendingCallWatcher* watcher = new QDBusPendingCallWatcher(reply, this);
   QObject::connect(watcher, &QDBusPendingCallWatcher::finished, watcher,
                    &QDBusPendingCallWatcher::deleteLater);

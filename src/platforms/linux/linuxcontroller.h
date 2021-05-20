@@ -38,8 +38,11 @@ class LinuxController final : public ControllerImpl {
   void checkStatusCompleted(QDBusPendingCallWatcher* call);
   void initializeCompleted(QDBusPendingCallWatcher* call);
   void operationCompleted(QDBusPendingCallWatcher* call);
+  void hopConnected(int hopindex);
+  void hopDisconnected(int hopindex);
 
  private:
+  int m_hopcount;
   DBusClient* m_dbus = nullptr;
 };
 
