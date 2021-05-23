@@ -96,9 +96,51 @@ void LocalSocketController::activate(
     return;
   }
 
+  m_hopcount = serverList.count();
+  for (int hopindex = m_hopcount - 1; hopindex > 0; hopindex--) {
+    QJsonObject hopJson;
+    const Server& hop = serverList[hopindex];
+    const Server& next = serverList[hopindex - 1];
+    hopJson.insert("type", "activate");
+    hopJson.insert("hopindex", QJsonValue((double)hopindex));
+    hopJson.insert("privateKey", QJsonValue(keys->privateKey()));
+    hopJson.insert("serverIpv4Gateway", QJsonValue(hop.ipv4Gateway()));
+    hopJson.insert("serverIpv6Gateway", QJsonValue(hop.ipv6Gateway()));
+    hopJson.insert("serverPublicKey", QJsonValue(hop.publicKey()));
+    hopJson.insert("serverIpv4AddrIn", QJsonValue(hop.ipv4AddrIn()));
+    hopJson.insert("serverIpv6AddrIn", QJsonValue(hop.ipv6AddrIn()));
+    hopJson.insert("serverPort", QJsonValue((double)hop.choosePort()));
+    hopJson.insert("ipv6Enabled",
+                   QJsonValue(SettingsHolder::instance()->ipv6Enabled()));
+
+    // FIXME: Windows requires distinct IP addresses on each tunnel
+    // interface, but at the same time the API to mullvad only provides
+    // us with a single device address to use. How to resolve?
+#if 1
+    hopJson.insert("deviceIpv4Address", QString("10.64.255.%1/32").arg(hopindex));
+    hopJson.insert("deviceIpv6Address", QString("fc00:bbbb:bbbb:bb01::%1:beef/128").arg(hopindex));
+#else
+    hopJson.insert("deviceIpv4Address", QJsonValue(device->ipv4Address()));
+    hopJson.insert("deviceIpv6Address", QJsonValue(device->ipv6Address()));
+#endif
+
+    QJsonArray hopIPAddesses;
+    hopIPAddesses.append(QJsonObject({{"address", hop.ipv4Gateway()},
+      {"range", 32}, {"isIpv6", false}}));
+    hopIPAddesses.append(QJsonObject({{"address", hop.ipv6Gateway()},
+      {"range", 128}, {"isIpv6", true}}));
+    hopIPAddesses.append(QJsonObject({{"address", next.ipv4AddrIn()},
+      {"range", 32}, {"isIpv6", false}}));
+    hopIPAddesses.append(QJsonObject({{"address", next.ipv6AddrIn()},
+      {"range", 128}, {"isIpv6", true}}));
+    hopJson.insert("allowedIPAddressRanges", hopIPAddesses);
+    write(hopJson);
+  }
+
   const Server& server = serverList[0];
   QJsonObject json;
   json.insert("type", "activate");
+  json.insert("hopindex", QJsonValue((double)0));
   json.insert("privateKey", QJsonValue(keys->privateKey()));
   json.insert("deviceIpv4Address", QJsonValue(device->ipv4Address()));
   json.insert("deviceIpv6Address", QJsonValue(device->ipv6Address()));
@@ -137,9 +179,13 @@ void LocalSocketController::deactivate(Reason reason) {
     return;
   }
 
-  QJsonObject json;
-  json.insert("type", "deactivate");
-  write(json);
+  for (int hopindex = 0; hopindex < m_hopcount; hopindex++) {
+    QJsonObject json;
+    json.insert("type", "deactivate");
+    json.insert("hopindex", hopindex);
+    write(json);
+  }
+  m_hopcount = 0;
 }
 
 void LocalSocketController::checkStatus() {
@@ -304,12 +350,26 @@ void LocalSocketController::parseCommand(const QByteArray& command) {
   }
 
   if (type == "disconnected") {
-    emit disconnected();
+    QJsonValue hopindex = obj.value("hopindex");
+    if (!hopindex.isDouble()) {
+      logger.log() << "Unexpected hopindex value";
+      return;
+    }
+    if (hopindex.toInt() == 0) {
+      emit disconnected();
+    }
     return;
   }
 
   if (type == "connected") {
-    emit connected();
+    QJsonValue hopindex = obj.value("hopindex");
+    if (!hopindex.isDouble()) {
+      logger.log() << "Unexpected hopindex value";
+      return;
+    }
+    if (hopindex.toInt() == 0) {
+      emit connected();
+    }
     return;
   }
 

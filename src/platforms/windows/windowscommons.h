@@ -11,7 +11,7 @@ class WindowsCommons final {
  public:
   static void windowsLog(const QString& msg);
 
-  static QString tunnelConfigFile();
+  static QString tunnelConfigFile(const QString& ifname);
 };
 
 #endif  // WINDOWSCOMMONS_H

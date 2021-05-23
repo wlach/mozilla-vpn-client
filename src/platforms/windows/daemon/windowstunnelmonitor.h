@@ -8,24 +8,32 @@
 #include <QObject>
 #include <QTimer>
 
+#include <Windows.h>
+
 class WindowsTunnelMonitor final : public QObject {
   Q_OBJECT
   Q_DISABLE_COPY_MOVE(WindowsTunnelMonitor)
 
  public:
-  WindowsTunnelMonitor();
+  WindowsTunnelMonitor(const QString& serviceName, const QString& displayName,
+                       QObject* parent);
   ~WindowsTunnelMonitor();
 
-  void start();
-  void stop();
+  bool start(const QString& servicePath);
+  bool terminate();
 
  signals:
   void backendFailure();
 
  private:
+  static SC_HANDLE scm();
+  bool waitForStatus(DWORD expectedStatus);
   void timeout();
 
  private:
+  const QString m_serviceName;
+  const QString m_displayName;
+  SC_HANDLE m_service = nullptr;
   QTimer m_timer;
 };
 

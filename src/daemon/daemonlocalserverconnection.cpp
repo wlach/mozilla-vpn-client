@@ -90,21 +90,26 @@ void DaemonLocalServerConnection::parseCommand(const QByteArray& data) {
   QString type = typeValue.toString();
   if (type == "activate") {
     InterfaceConfig config;
-    if (!Daemon::parseConfig(obj, config)) {
+    if (!Daemon::instance()->parseConfig(obj, config)) {
       logger.log() << "Invalid configuration";
-      emit disconnected();
+      emit disconnected(config.m_hopindex);
       return;
     }
 
     if (!Daemon::instance()->activate(config)) {
       logger.log() << "Failed to activate the interface";
-      emit disconnected();
+      emit disconnected(config.m_hopindex);
     }
     return;
   }
 
   if (type == "deactivate") {
-    Daemon::instance()->deactivate();
+    QJsonValue hopValue = obj.value("hopindex");
+    int hopindex = 0;
+    if (hopValue.isDouble()) {
+      hopindex = hopValue.toInt();
+    }
+    Daemon::instance()->deactivate(hopindex);
     return;
   }
 
@@ -131,15 +136,17 @@ void DaemonLocalServerConnection::parseCommand(const QByteArray& data) {
   logger.log() << "Invalid command:" << type;
 }
 
-void DaemonLocalServerConnection::connected() {
+void DaemonLocalServerConnection::connected(int hopindex) {
   QJsonObject obj;
   obj.insert("type", "connected");
+  obj.insert("hopindex", QJsonValue((double)hopindex));
   write(obj);
 }
 
-void DaemonLocalServerConnection::disconnected() {
+void DaemonLocalServerConnection::disconnected(int hopindex) {
   QJsonObject obj;
   obj.insert("type", "disconnected");
+  obj.insert("hopindex", QJsonValue((double)hopindex));
   write(obj);
 }
 

@@ -10,8 +10,6 @@
 
 #include <Windows.h>
 
-#define TUNNEL_SERVICE_NAME L"WireGuardTunnel$mozvpn"
-
 constexpr const char* VPN_NAME = "MozillaVPN";
 
 namespace {
@@ -35,7 +33,7 @@ void WindowsCommons::windowsLog(const QString& msg) {
   LocalFree(messageBuffer);
 }
 
-QString WindowsCommons::tunnelConfigFile() {
+QString WindowsCommons::tunnelConfigFile(const QString& ifname) {
   QStringList paths =
       QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation);
   for (const QString& path : paths) {
@@ -44,12 +42,12 @@ QString WindowsCommons::tunnelConfigFile() {
       continue;
     }
 
-    QDir vpnDir(dir.filePath(VPN_NAME));
+    QDir vpnDir(dir.filePath(ifname));
     if (!vpnDir.exists()) {
       continue;
     }
 
-    QString wireguardFile(vpnDir.filePath(QString("%1.conf").arg(VPN_NAME)));
+    QString wireguardFile(vpnDir.filePath(QString("%1.conf").arg(ifname)));
     if (!QFileInfo::exists(wireguardFile)) {
       continue;
     }
@@ -62,13 +60,13 @@ QString WindowsCommons::tunnelConfigFile() {
   for (const QString& path : paths) {
     QDir dir(path);
 
-    QDir vpnDir(dir.filePath(VPN_NAME));
-    if (!vpnDir.exists() && !dir.mkdir(VPN_NAME)) {
+    QDir vpnDir(dir.filePath(ifname));
+    if (!vpnDir.exists() && !dir.mkdir(ifname)) {
       logger.log() << "Failed to create path Mozilla under" << path;
       continue;
     }
 
-    return vpnDir.filePath(QString("%1.conf").arg(VPN_NAME));
+    return vpnDir.filePath(QString("%1.conf").arg(ifname));
   }
 
   logger.log() << "Failed to create the right paths";

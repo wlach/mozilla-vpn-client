@@ -8,8 +8,6 @@
 #include "daemon/daemon.h"
 #include "windowstunnelmonitor.h"
 
-#define TUNNEL_SERVICE_NAME L"WireGuardTunnel$MozillaVPN"
-
 class WindowsDaemon final : public Daemon {
   Q_DISABLE_COPY_MOVE(WindowsDaemon)
 
@@ -26,20 +24,13 @@ class WindowsDaemon final : public Daemon {
 
   bool switchServer(const InterfaceConfig& config) override;
 
-  bool registerTunnelService(const QString& configFile);
+  QString interfaceName(int hopindex) override;
 
  private:
   void monitorBackendFailure();
 
  private:
-  enum State {
-    Active,
-    Inactive,
-  };
-
-  State m_state = Inactive;
-
-  WindowsTunnelMonitor m_tunnelMonitor;
+  QMap<int, WindowsTunnelMonitor*> m_tunnelMonitors;
 };
 
 #endif  // WINDOWSDAEMON_H

@@ -81,7 +81,7 @@ bool FeatureList::gleanSupported() const {
 }
 
 bool FeatureList::multihopSupported() const {
-#if defined(MVPN_LINUX)
+#if defined(MVPN_WINDOWS) || defined(MVPN_LINUX)
   return SettingsHolder::instance()->untestedFeatures();
 #else
   return false;

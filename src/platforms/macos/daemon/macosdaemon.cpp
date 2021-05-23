@@ -127,7 +127,7 @@ bool MacOSDaemon::run(Daemon::Op op, const InterfaceConfig& config) {
   }
 
   return WgQuickProcess::run(
-      op, config.m_privateKey, config.m_deviceIpv4Address,
+      op, config.m_hopindex, config.m_privateKey, config.m_deviceIpv4Address,
       config.m_deviceIpv6Address, config.m_serverIpv4Gateway,
       config.m_serverIpv6Gateway, config.m_serverPublicKey,
       config.m_serverIpv4AddrIn, config.m_serverIpv6AddrIn,

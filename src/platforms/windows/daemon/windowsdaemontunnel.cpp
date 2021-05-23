@@ -79,7 +79,7 @@ int WindowsDaemonTunnel::run(QStringList& tokens) {
 
   tunnelLogger(tunnelLoggerFunc);
 
-  QString configFile = WindowsCommons::tunnelConfigFile();
+  const QString& configFile = tokens[1];
   if (configFile.isEmpty()) {
     logger.log() << "Failed to retrieve the config file";
     return 1;

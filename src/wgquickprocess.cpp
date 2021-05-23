@@ -22,7 +22,7 @@ Logger logger(
 
 // static
 bool WgQuickProcess::createConfigFile(
-    const QString& configFile, const QString& privateKey,
+    const QString& configFile, int hopindex, const QString& privateKey,
     const QString& deviceIpv4Address, const QString& deviceIpv6Address,
     const QString& serverIpv4Gateway, const QString& serverIpv6Gateway,
     const QString& serverPublicKey, const QString& serverIpv4AddrIn,
@@ -55,12 +55,14 @@ bool WgQuickProcess::createConfigFile(
     content.append(deviceIpv6Address.toUtf8());
   }
 
-  content.append("\nDNS = ");
-  content.append(serverIpv4Gateway.toUtf8());
+  if (hopindex == 0) {
+    content.append("\nDNS = ");
+    content.append(serverIpv4Gateway.toUtf8());
 
-  if (ipv6Enabled) {
-    content.append(", ");
-    content.append(serverIpv6Gateway.toUtf8());
+    if (ipv6Enabled) {
+      content.append(", ");
+      content.append(serverIpv6Gateway.toUtf8());
+    }
   }
 
   content.append("\n\n[Peer]\nPublicKey = ");
@@ -103,11 +105,12 @@ bool WgQuickProcess::createConfigFile(
 
 // static
 bool WgQuickProcess::run(
-    Daemon::Op op, const QString& privateKey, const QString& deviceIpv4Address,
-    const QString& deviceIpv6Address, const QString& serverIpv4Gateway,
-    const QString& serverIpv6Gateway, const QString& serverPublicKey,
-    const QString& serverIpv4AddrIn, const QString& serverIpv6AddrIn,
-    const QString& allowedIPAddressRanges, int serverPort, bool ipv6Enabled) {
+    Daemon::Op op, int hopindex, const QString& privateKey,
+    const QString& deviceIpv4Address, const QString& deviceIpv6Address,
+    const QString& serverIpv4Gateway, const QString& serverIpv6Gateway,
+    const QString& serverPublicKey, const QString& serverIpv4AddrIn,
+    const QString& serverIpv6AddrIn, const QString& allowedIPAddressRanges,
+    int serverPort, bool ipv6Enabled) {
   QTemporaryDir tmpDir;
   if (!tmpDir.isValid()) {
     qWarning("Cannot create a temporary directory");
@@ -117,7 +120,7 @@ bool WgQuickProcess::run(
   QDir dir(tmpDir.path());
   QString configFile(dir.filePath(QString("%1.conf").arg(WG_INTERFACE)));
 
-  if (!createConfigFile(configFile, privateKey, deviceIpv4Address,
+  if (!createConfigFile(configFile, hopindex, privateKey, deviceIpv4Address,
                         deviceIpv6Address, serverIpv4Gateway, serverIpv6Gateway,
                         serverPublicKey, serverIpv4AddrIn, serverIpv6AddrIn,
                         allowedIPAddressRanges, serverPort, ipv6Enabled)) {

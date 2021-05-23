@@ -50,6 +50,7 @@ class LocalSocketController final : public ControllerImpl {
     eDisconnected,
   } m_state = eUnknown;
 
+  int m_hopcount = 0;
   QLocalSocket* m_socket = nullptr;
 
   QByteArray m_buffer;
