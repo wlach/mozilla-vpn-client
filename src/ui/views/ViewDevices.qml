@@ -15,8 +15,7 @@ Item {
 
     property var isModalDialogOpened: removePopup.visible
     property var wasmView
-    height: window.safeContentHeight
-    width: window.width
+
 
     VPNMenu {
         id: menu
@@ -27,17 +26,23 @@ Item {
         accessibleIgnored: isModalDialogOpened
     }
 
+    Rectangle {
+        id: menu1// This is available in all editors.
+        anchors.top: parent.top
+    }
+
     VPNFlickable {
         id: vpnFlickable
 
         anchors.top: menu.bottom
         height: root.height - menu.height
-        width: root.width
+        anchors.left: root.left
+        anchors.right: root.right
         interactive: true
         flickContentHeight: maxDevicesReached.height + content.height + col.height
         contentHeight: maxDevicesReached.height + content.height + col.height
-        contentWidth: window.width
         state: VPN.state !== VPN.StateDeviceLimit ? "active" : "deviceLimit"
+
         Component.onCompleted: {
             if (wasmView) {
                 state = "deviceLimit"
@@ -81,12 +86,14 @@ Item {
         VPNDevicesListHeader {
             id: maxDevicesReached
 
-            width: root.width
+            anchors.left: parent.left
+            anchors.right: parent.right
         }
 
-        ColumnLayout {
+        Column {
             id: content
-            width: vpnFlickable.width
+            anchors.left: parent.left
+            anchors.right: parent.right
             anchors.top: maxDevicesReached.bottom
             anchors.topMargin: Theme.windowMargin / 2
             spacing: Theme.windowMargin / 2
@@ -94,11 +101,12 @@ Item {
             Repeater {
                 id: deviceList
                 model: VPNDeviceModel
-                Layout.alignment: Qt.AlignHCenter
-                Layout.fillWidth: true
+                anchors.left: parent.left
+                anchors.right: parent.right
 
-                delegate: VPNDeviceListItem{}
-            }
+                delegate: VPNDeviceListItem {}
+                }
+
 
             VPNVerticalSpacer {
                 Layout.preferredHeight: 1
@@ -110,6 +118,7 @@ Item {
 
                 Layout.preferredWidth: vpnFlickable.width
                 Layout.alignment: Qt.AlignHCenter
+//                Layout.fillWidth: true
 
                 VPNVerticalSpacer {
                     Layout.preferredHeight: Theme.windowMargin * 2
@@ -118,7 +127,8 @@ Item {
                     Rectangle {
                         id: divider
                         height: 1
-                        width:  parent.width
+                        anchors.left: parent.left
+                        anchors.right: parent.right
                         anchors.centerIn: parent
                         color: "#e7e7e7"
                     }
