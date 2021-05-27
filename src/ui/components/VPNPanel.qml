@@ -16,25 +16,26 @@ Item {
     property var isSettingsView: false
 
     anchors.horizontalCenter: parent.horizontalCenter
-    width: Math.min(parent.width, Theme.maxHorizontalContentWidth)
+    width: Math.min(parent.width - Theme.windowMargin * 3, Theme.maxHorizontalContentWidth)
     height: panel.height
 
-    ColumnLayout {
+    Column {
         id: panel
 
-        anchors.leftMargin: Theme.windowMargin * 1.5
-        anchors.rightMargin: Theme.windowMargin * 1.5
-        width: parent.width - Theme.windowMargin * 3
+        anchors.left: parent.left
+        anchors.right: parent.right
+        width: parent.width
+
         anchors.verticalCenter: parent.verticalCenter
-        anchors.horizontalCenter: parent.horizontalCenter
         spacing: 0
 
         Rectangle {
             id: logoWrapper
 
             color: "transparent"
-            Layout.preferredHeight: Math.max(logoSize, 76)
-            Layout.fillWidth: true
+            height: Math.max(logoSize, 76);
+            width: height
+            anchors.horizontalCenter: parent.horizontalCenter
 
             Image {
                 id: logo
@@ -62,7 +63,6 @@ Item {
                     radius: logoSize / 2
                     visible: false
                 }
-
                 layer.effect: OpacityMask {
                     maskSource: maskImage ? mask : undefined
                 }
@@ -71,26 +71,28 @@ Item {
 
         }
 
+        VPNVerticalSpacer {
+            height: 24
+        }
+
         VPNHeadline {
             id: logoTitle
 
-            Layout.preferredWidth: parent.width
-            Layout.alignment: Qt.AlignHCenter
-            Layout.topMargin:24
             // In Settings, the headline wrapMode is set to 'WrapAtWordBoundaryOrAnywhere' to
             // prevent very long, unbroken display names from throwing the layout
             wrapMode: isSettingsView ? Text.WrapAtWordBoundaryOrAnywhere : Text.WordWrap
+            width: parent.width
+        }
+
+        VPNVerticalSpacer {
+            height: 8
         }
 
         VPNSubtitle {
             id: logoSubtitle
 
-            Layout.alignment: Qt.AlignHCenter
-            Layout.topMargin: 12
-            Layout.leftMargin: Theme.windowMargin / 2
-            Layout.rightMargin: Theme.windowMargin / 2
-            Layout.maximumWidth: Theme.maxHorizontalContentWidth
-            Layout.fillWidth: true
+            anchors.topMargin: 12
+            width: parent.width
         }
 
     }
