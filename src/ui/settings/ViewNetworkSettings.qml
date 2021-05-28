@@ -76,62 +76,6 @@ VPNFlickable {
                 }
            }
         }
-        VPNCheckBoxRow {
-            id: useGateWayDNS
-            visible: VPNFeatureList.userDNSSupported
-            objectName: "settingMozillaDNSEnabled"
-            width: parent.width
-
-            //% "Use VPN DNS"
-            labelText: qsTrId("vpn.settings.useGatewayDNS")
-            //% "Hide what websites you are visiting Mozillas Anonymous DNS-Service"
-            subLabelText: qsTrId("vpn.settings.useGatewayDNS.description")
-            isChecked: (VPNSettings.useGatewayDNS)
-            isEnabled: vpnFlickable.vpnIsOff
-            showDivider: isChecked
-            onClicked: {
-                if (vpnFlickable.vpnIsOff) {
-                    VPNSettings.useGatewayDNS = !VPNSettings.useGatewayDNS
-                }
-           }
-        }
-
-        VPNTextInput{
-            id: ipInput
-            visible: !useGateWayDNS.isChecked && useGateWayDNS.visible
-            isEnabled: vpnFlickable.vpnIsOff
-            Layout.leftMargin: 55
-            width: parent.width - Layout.leftMargin
-            height: 30
-            //% "DNS Server to use:"
-            labelText: qsTrId("vpn.settings.userDNS.header")
-            //% "Enter a DNS Server in your local network to use"
-            subLabelText: qsTrId("vpn.settings.userDNS.description")
-
-
-            valueChanged:(ip)=>{
-              if(ip.length < 7){
-               // If we have less then 7 characters it's impossible to have a valid ip
-               // so we should not bother the user yet while the input has focus
-               ipInput.valueInavlid = false;
-               return;
-              }
-
-              // Now bother user if the ip is invalid :)
-              if(!VPNSettings.isValidUserDNS(ip)){
-                ipInput.valueInavlid = true;
-
-                return;
-              }
-              ipInput.valueInavlid = false;
-              if(ip !== VPNSettings.userDNS){
-                VPNSettings.userDNS=ip
-              }
-            }
-            value: VPNSettings.userDNS
-
-
-        }
         VPNCheckBoxAlert {
             width: parent.width
             visible: !vpnFlickable.vpnIsOff
@@ -142,11 +86,4 @@ VPNFlickable {
         }
 
     }
-
-
-
-
-
-
-
 }
