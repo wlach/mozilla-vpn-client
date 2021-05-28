@@ -78,5 +78,6 @@ extension/app/mozillavpnnp
 .npobj
 mozillavpnnp.*
 
+
 # glean
 glean/generated/*
