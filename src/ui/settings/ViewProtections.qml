@@ -1,7 +1,8 @@
+
+
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 import QtQuick 2.5
 import QtQuick.Controls 2.14
 import QtQuick.Layouts 1.14
@@ -10,185 +11,187 @@ import "../components"
 import "../themes/themes.js" as Theme
 import "/glean/load.js" as Glean
 
-VPNFlickable {
-    id: vpnFlickable
-    property bool vpnIsOff: (VPNController.state === VPNController.StateOff)
-    height: VPNMenu.height + holder.height
+Item {
+    id: viewRoot
+
     VPNMenu {
         id: menu
         objectName: "settingsNotificationsBackButton"
-
         //% "Tracking- and Ad-Protection"
         title: qsTrId("vpn.settings.protections.title")
         isSettingsView: true
     }
 
-    ColumnLayout{
-        id: holder
+    VPNFlickable {
+        id: vpnFlickable
         anchors.top: menu.bottom
-        anchors.topMargin: Theme.windowMargin * 1.5
-        anchors.horizontalCenter: parent.horizontalCenter
-        width: vpnFlickable.width - Theme.windowMargin * 3.5
-        spacing: 10
+        anchors.left: viewRoot.left
+        height: viewRoot.height - menu.height
+        width: viewRoot.width
+        property bool vpnIsOff: (VPNController.state === VPNController.StateOff)
+        flickContentHeight: holder.height
 
-        VPNCheckBoxAlert {
-            id: vpnOnAlert
-            visible: !vpnFlickable.vpnIsOff
-            anchors.leftMargin: Theme.windowMargin
-            width: enableProtections.width
-            //% "VPN must be off to edit App Permissions"
-            //: Associated to a group of settings that require the VPN to be disconnected to change
-            errorMessage: qsTrId("vpn.settings.protectSelectedApps.vpnMustBeOff")
-        }
-        RowLayout {
-            // Enable Protections Box
-            id: enableProtections
-            anchors.top: vpnOnAlert.visible ? vpnOnAlert.bottom : parent.top
-            spacing: Theme.windowMargin
+        ColumnLayout {
+            id: holder
+            anchors.top: menu.bottom
+            anchors.topMargin: Theme.windowMargin * 1.5
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: vpnFlickable.width - Theme.windowMargin * 3.5
+            spacing: 10
 
-            Rectangle {
-                id: rect
-                anchors.fill: enableProtections
-                anchors.topMargin: -12
-                anchors.bottomMargin: anchors.topMargin
-                anchors.leftMargin: -Theme.windowMargin
-                anchors.rightMargin: anchors.leftMargin
-                color: Theme.white
-                radius: 4
-                // It's filling enableProtections
-                // But for the layout calc it does not need to take space
-                Layout.preferredHeight: 0
-                Layout.preferredWidth: 0
+            VPNCheckBoxAlert {
+                id: vpnOnAlert
+                Layout.topMargin: Theme.windowMargin * 2
+                visible: !vpnFlickable.vpnIsOff
+                width: enableProtections.width
+                //% "VPN must be off to edit App Permissions"
+                //: Associated to a group of settings that require the VPN to be disconnected to change
+                errorMessage: qsTrId(
+                                  "vpn.settings.protectSelectedApps.vpnMustBeOff")
             }
 
-            ColumnLayout {
-                Layout.fillWidth: true
-                VPNInterLabel {
-                    Layout.alignment: Qt.AlignLeft
-                    Layout.fillWidth: true
-                    //% "Enable Tracking Protection & AD-Blocking"
-                    text: qsTrId("vpn.settings.protections.enable")
-                    color: Theme.fontColorDark
-                    horizontalAlignment: Text.AlignLeft
+            RowLayout {
+                // Enable Protections Box
+                id: enableProtections
+                Layout.topMargin: Theme.windowMargin * 2
+                spacing: Theme.windowMargin
+
+                Rectangle {
+                    id: rect
+                    anchors.fill: enableProtections
+                    anchors.topMargin: -12
+                    anchors.bottomMargin: anchors.topMargin
+                    anchors.leftMargin: -Theme.windowMargin
+                    anchors.rightMargin: anchors.leftMargin
+                    color: Theme.white
+                    radius: 4
+                    // It's filling enableProtections
+                    // But for the layout calc it does not need to take space
+                    Layout.preferredHeight: 0
+                    Layout.preferredWidth: 0
                 }
 
-                VPNTextBlock {
+                ColumnLayout {
                     Layout.fillWidth: true
-                    //% "Block unwanted Connections to AD & Tracking Servers"
-                    text: qsTrId("vpn.settings.protections.description")
-                    visible: !!text.length
-                }
-            }
+                    VPNInterLabel {
+                        Layout.alignment: Qt.AlignLeft
+                        Layout.fillWidth: true
+                        //% "Enable Tracking Protection & AD-Blocking"
+                        text: qsTrId("vpn.settings.protections.enable")
+                        color: Theme.fontColorDark
+                        horizontalAlignment: Text.AlignLeft
+                    }
 
-            VPNSettingsToggle {
-                Layout.preferredHeight: 24
-                Layout.preferredWidth: 45
-                checked: (!VPNSettings.useGatewayDNS)
-                enabled: vpnFlickable.vpnIsOff
-                toolTipTitle: qsTrId("vpn.settings.protections.enable")
-                onClicked: {
-                    if (vpnFlickable.vpnIsOff) {
-                        VPNSettings.useGatewayDNS = !VPNSettings.useGatewayDNS
+                    VPNTextBlock {
+                        Layout.fillWidth: true
+                        //% "Block unwanted Connections to AD & Tracking Servers"
+                        text: qsTrId("vpn.settings.protections.description")
+                        visible: !!text.length
+                    }
+                }
+
+                VPNSettingsToggle {
+                    Layout.preferredHeight: 24
+                    Layout.preferredWidth: 45
+                    checked: (!VPNSettings.useGatewayDNS)
+                    enabled: vpnFlickable.vpnIsOff
+                    toolTipTitle: qsTrId("vpn.settings.protections.enable")
+                    onClicked: {
+                        if (vpnFlickable.vpnIsOff) {
+                            VPNSettings.useGatewayDNS = !VPNSettings.useGatewayDNS
+                        }
                     }
                 }
             }
-        }
 
-        VPNBoldLabel {
-            Layout.topMargin: 30
-            width: parent.width
-            //% "Select Block List"
-            text: qsTrId("vpn.settings.protections.mode")
-            visible: !VPNSettings.useGatewayDNS
-        }
-        VPNRadioDelegate{
-            isHoverable: true
-            //% "Block Ad-Servers"
-            radioButtonLabelText: qsTrId("vpn.settings.protections.mode.ads")
-            accessibleName: radioButtonLabelText
-            checked: VPNSettings.dnsProvider === VPNSettings.BlockAds
-            visible: !VPNSettings.useGatewayDNS
-            onClicked: {
-                VPNSettings.dnsProvider = VPNSettings.BlockAds
+            VPNBoldLabel {
+                Layout.topMargin: 30
+                width: parent.width
+                //% "Select Block List"
+                text: qsTrId("vpn.settings.protections.mode")
+                visible: !VPNSettings.useGatewayDNS
+            }
+            VPNRadioDelegate {
+                isHoverable: true
+                //% "Block Ad-Servers"
+                radioButtonLabelText: qsTrId(
+                                          "vpn.settings.protections.mode.ads")
+                accessibleName: radioButtonLabelText
+                checked: VPNSettings.dnsProvider === VPNSettings.BlockAds
+                visible: !VPNSettings.useGatewayDNS
+                onClicked: {
+                    VPNSettings.dnsProvider = VPNSettings.BlockAds
+                }
+            }
+            VPNRadioDelegate {
+                isHoverable: true
+                //% "Block Trackers"
+                radioButtonLabelText: qsTrId(
+                                          "vpn.settings.protections.mode.trackers")
+                accessibleName: radioButtonLabelText
+                checked: VPNSettings.dnsProvider === VPNSettings.BlockTracking
+                visible: !VPNSettings.useGatewayDNS
+                onClicked: {
+                    VPNSettings.dnsProvider = VPNSettings.BlockTracking
+                }
+            }
+            VPNRadioDelegate {
+                isHoverable: true
+                //% "Block Trackers & Ads"
+                radioButtonLabelText: qsTrId(
+                                          "vpn.settings.protections.mode.all")
+                accessibleName: radioButtonLabelText
+                checked: VPNSettings.dnsProvider === VPNSettings.BlockAll
+                visible: !VPNSettings.useGatewayDNS
+                onClicked: {
+                    VPNSettings.dnsProvider = VPNSettings.BlockAll
+                }
+            }
+            VPNRadioDelegate {
+                isHoverable: true
+                //% "Block using a Custom DNS Service"
+                radioButtonLabelText: qsTrId(
+                                          "vpn.settings.protections.mode.custom")
+                accessibleName: radioButtonLabelText
+                checked: VPNSettings.dnsProvider === VPNSettings.Custom
+                visible: !VPNSettings.useGatewayDNS
+                onClicked: {
+                    VPNSettings.dnsProvider = VPNSettings.Custom
+                }
+            }
+
+            VPNTextInput {
+                id: ipInput
+                visible: !VPNSettings.useGatewayDNS
+                         && VPNSettings.dnsProvider === VPNSettings.Custom
+                isEnabled: vpnFlickable.vpnIsOff
+                width: parent.width
+                Layout.bottomMargin: ipInput.focus ? 500 : 0
+                //% "DNS Server to use:"
+                labelText: qsTrId("vpn.settings.customDNS.header")
+                //% "Enter a DNS Server in your local network to use"
+                subLabelText: qsTrId("vpn.settings.customDNS.description")
+
+                valueChanged:(ip)=>{
+                  if(ip.length < 7){
+                   // If we have less then 7 characters it's impossible to have a valid ip
+                   // so we should not bother the user yet while the input has focus
+                   ipInput.valueInavlid = false;
+                   return;
+                  }
+
+                  // Now bother user if the ip is invalid :)
+                  if(!VPNSettings.isValidCustomDNS(ip)){
+                    ipInput.valueInavlid = true;
+
+                    return;
+                  }
+                  ipInput.valueInavlid = false;
+                  if(ip !== VPNSettings.customDNS){
+                    VPNSettings.customDNS=ip
+                  }
+                }
             }
         }
-        VPNRadioDelegate{
-            isHoverable: true
-            //% "Block Trackers"
-            radioButtonLabelText: qsTrId("vpn.settings.protections.mode.trackers")
-            accessibleName: radioButtonLabelText
-            checked: VPNSettings.dnsProvider === VPNSettings.BlockTracking
-            visible: !VPNSettings.useGatewayDNS
-            onClicked: {
-                VPNSettings.dnsProvider = VPNSettings.BlockTracking
-            }
-        }
-        VPNRadioDelegate{
-            isHoverable: true
-            //% "Block Trackers & Ads"
-            radioButtonLabelText: qsTrId("vpn.settings.protections.mode.all")
-            accessibleName:radioButtonLabelText
-            checked: VPNSettings.dnsProvider === VPNSettings.BlockAll
-            visible: !VPNSettings.useGatewayDNS
-            onClicked: {
-                VPNSettings.dnsProvider = VPNSettings.BlockAll
-            }
-        }
-        VPNRadioDelegate{
-            isHoverable: true
-            //% "Block using a Custom DNS Service"
-            radioButtonLabelText: qsTrId("vpn.settings.protections.mode.custom")
-            accessibleName: "hi"
-            checked: VPNSettings.dnsProvider === VPNSettings.Custom
-            visible: !VPNSettings.useGatewayDNS
-            onClicked: {
-                VPNSettings.dnsProvider = VPNSettings.Custom
-            }
-        }
-
-        VPNTextInput{
-            id: ipInput
-            visible: !VPNSettings.useGatewayDNS && VPNSettings.dnsProvider === VPNSettings.Custom
-            isEnabled: vpnFlickable.vpnIsOff
-            width: parent.width
-            height: 30
-            //% "DNS Server to use:"
-            labelText: qsTrId("vpn.settings.userDNS.header")
-            //% "Enter a DNS Server in your local network to use"
-            subLabelText: qsTrId("vpn.settings.userDNS.description")
-
-
-            valueChanged:(ip)=>{
-              if(ip.length < 7){
-               // If we have less then 7 characters it's impossible to have a valid ip
-               // so we should not bother the user yet while the input has focus
-               ipInput.valueInavlid = false;
-               return;
-              }
-
-              // Now bother user if the ip is invalid :)
-              if(!VPNSettings.isValidUserDNS(ip)){
-                ipInput.valueInavlid = true;
-
-                return;
-              }
-              ipInput.valueInavlid = false;
-              if(ip !== VPNSettings.userDNS){
-                VPNSettings.userDNS=ip
-              }
-            }
-            value: VPNSettings.userDNS
-
-
-        }
-
     }
-
-
-
-
-
-
-
-
 }

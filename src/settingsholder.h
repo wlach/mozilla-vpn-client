@@ -115,7 +115,7 @@ class SettingsHolder final : public QObject {
   void addConsumedSurvey(const QString& surveyId);
 
   Q_INVOKABLE
-  bool isValidcustomDNS(const QString& dns);
+  bool isValidCustomDNS(const QString& dns);
   QString getDNS(const QString& serverGateway);
 
 #ifdef MVPN_IOS

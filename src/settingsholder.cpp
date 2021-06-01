@@ -372,7 +372,7 @@ void SettingsHolder::addConsumedSurvey(const QString& surveyId) {
   setConsumedSurveys(list);
 }
 
-bool SettingsHolder::isValidcustomDNS(const QString& dns) {
+bool SettingsHolder::isValidCustomDNS(const QString& dns) {
   logger.log() << "checking -> " << dns;
   QHostAddress address = QHostAddress(dns);
 
@@ -421,7 +421,8 @@ QString SettingsHolder::getDNS(const QString& serverGateWay){
         // lets fallback
         return serverGateWay;
     }
-    if(!isValidcustomDNS(userDNS)){
+    if(!isValidCustomDNS(userDNS)){
+        logger.log() << "Saved Custom DNS seems invalid, defaulting to gateway dns";
         return serverGateWay;
     }
     return userDNS;

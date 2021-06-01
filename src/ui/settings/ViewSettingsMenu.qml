@@ -133,7 +133,7 @@ VPNFlickable {
         VPNSettingsItem {
             objectName: "settingsProtections"
 
-            settingTitle: qsTrId("vpn.settings.protections")
+            settingTitle: qsTrId("vpn.settings.protections.title")
             imageLeftSrc: "../resources/settings/shield.svg"
             imageRightSrc: "../resources/chevron.svg"
             onClicked: settingsStackView.push("../settings/ViewProtections.qml")
